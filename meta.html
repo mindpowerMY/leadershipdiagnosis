@@ -1,0 +1,1155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Leadership Needs Diagnostic</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --ink: #1a1714;
+    --paper: #f5f2ec;
+    --cream: #ede9e1;
+    --warm-mid: #c9b99a;
+    --accent: #b85c2a;
+    --accent-light: #f0ddd2;
+    --teal: #2a6b6b;
+    --teal-light: #d2eaea;
+    --purple: #4a3d7a;
+    --purple-light: #e4e0f4;
+    --muted: #7a7068;
+    --border: #ddd8cf;
+  }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+    min-height: 100vh;
+    font-weight: 300;
+  }
+
+  /* ── HEADER ── */
+  header {
+    background: var(--ink);
+    color: var(--paper);
+    padding: 2rem 2.5rem 1.75rem;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+
+  .header-left h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(1.6rem, 3vw, 2.2rem);
+    font-weight: 400;
+    line-height: 1.15;
+    letter-spacing: -0.01em;
+  }
+
+  .header-left h1 em {
+    font-style: italic;
+    color: var(--warm-mid);
+  }
+
+  .header-left p {
+    margin-top: 0.5rem;
+    font-size: 0.82rem;
+    color: #a09890;
+    font-weight: 300;
+    letter-spacing: 0.02em;
+    max-width: 420px;
+  }
+
+  .header-right {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    flex-shrink: 0;
+    margin-top: 0.2rem;
+  }
+
+  .pill {
+    font-size: 0.72rem;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 0.3rem 0.75rem;
+    border-radius: 100px;
+    border: 1px solid #3a3530;
+    color: #a09890;
+  }
+
+  /* ── MAIN LAYOUT ── */
+  .layout {
+    display: grid;
+    grid-template-columns: 260px 1fr 300px;
+    min-height: calc(100vh - 120px);
+  }
+
+  /* ── LEFT NAV ── */
+  .left-nav {
+    background: var(--cream);
+    border-right: 1px solid var(--border);
+    padding: 1.5rem 0;
+  }
+
+  .nav-section {
+    padding: 0.5rem 1rem 1.5rem;
+  }
+
+  .nav-label {
+    font-size: 0.68rem;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    padding: 0 0.5rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .area-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    width: 100%;
+    padding: 0.7rem 0.75rem;
+    border-radius: 8px;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    text-align: left;
+    transition: background 0.15s;
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 300;
+    color: var(--ink);
+  }
+
+  .area-btn:hover { background: #e5e0d8; }
+
+  .area-btn.active {
+    background: var(--ink);
+    color: var(--paper);
+  }
+
+  .area-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .area-btn.active .area-dot { background: var(--warm-mid); }
+
+  .dot-self { background: var(--purple); }
+  .dot-people { background: var(--teal); }
+  .dot-plan { background: var(--accent); }
+
+  .area-btn.active.self { background: var(--purple); }
+  .area-btn.active.people { background: var(--teal); }
+  .area-btn.active.plan { background: var(--accent); }
+
+  .area-name {
+    font-size: 0.88rem;
+    line-height: 1.3;
+  }
+
+  .area-count {
+    margin-left: auto;
+    font-size: 0.72rem;
+    opacity: 0.5;
+  }
+
+  .nav-divider {
+    height: 1px;
+    background: var(--border);
+    margin: 0.25rem 1rem 1rem;
+  }
+
+  .progress-section {
+    padding: 0 1.5rem;
+  }
+
+  .progress-label {
+    font-size: 0.72rem;
+    color: var(--muted);
+    margin-bottom: 0.5rem;
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .progress-bar {
+    height: 4px;
+    background: var(--border);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: var(--ink);
+    border-radius: 4px;
+    transition: width 0.4s ease;
+  }
+
+  /* ── MAIN CONTENT ── */
+  .main {
+    padding: 2rem 2rem 3rem;
+    overflow-y: auto;
+  }
+
+  .area-header {
+    margin-bottom: 1.75rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .area-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.72rem;
+    font-weight: 500;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 0.5rem;
+  }
+
+  .area-tag .dot-sm {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+  }
+
+  .area-header h2 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.6rem;
+    font-weight: 400;
+    line-height: 1.2;
+  }
+
+  .area-header p {
+    margin-top: 0.4rem;
+    font-size: 0.85rem;
+    color: var(--muted);
+    max-width: 520px;
+  }
+
+  /* ── COMPETENCY CARDS ── */
+  .competencies { display: flex; flex-direction: column; gap: 0; }
+
+  .comp-card {
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    margin-bottom: 0.75rem;
+    transition: box-shadow 0.15s;
+  }
+
+  .comp-card:hover { box-shadow: 0 2px 12px rgba(0,0,0,0.06); }
+
+  .comp-card.rated { border-color: transparent; }
+  .comp-card.rated.self { box-shadow: 0 0 0 1.5px var(--purple); }
+  .comp-card.rated.people { box-shadow: 0 0 0 1.5px var(--teal); }
+  .comp-card.rated.plan { box-shadow: 0 0 0 1.5px var(--accent); }
+
+  .comp-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1rem 1.1rem 0.9rem;
+    cursor: pointer;
+    background: white;
+    user-select: none;
+  }
+
+  .comp-top:hover { background: #fdfcfb; }
+
+  .comp-info { flex: 1; }
+
+  .comp-name {
+    font-size: 0.93rem;
+    font-weight: 500;
+    margin-bottom: 0.2rem;
+  }
+
+  .comp-desc {
+    font-size: 0.8rem;
+    color: var(--muted);
+    line-height: 1.5;
+  }
+
+  .comp-chevron {
+    width: 18px; height: 18px;
+    flex-shrink: 0;
+    color: var(--muted);
+    transition: transform 0.2s;
+    margin-top: 2px;
+  }
+
+  .comp-card.open .comp-chevron { transform: rotate(180deg); }
+
+  /* Rating row */
+  .comp-rating {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.35rem 1.1rem 0.35rem;
+    background: white;
+    border-top: 1px solid #f0ede8;
+  }
+
+  .rating-label { font-size: 0.72rem; color: var(--muted); margin-right: 0.25rem; flex-shrink: 0; }
+
+  .stars { display: flex; gap: 4px; }
+
+  .star {
+    width: 22px; height: 22px;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    padding: 0;
+    color: var(--border);
+    transition: color 0.1s, transform 0.1s;
+    font-size: 18px;
+    line-height: 1;
+  }
+
+  .star:hover, .star.lit { color: #e8a832; transform: scale(1.1); }
+  .star.lit { transform: scale(1); }
+
+  .rating-text { font-size: 0.72rem; color: var(--muted); margin-left: 0.25rem; }
+
+  /* Probe questions panel */
+  .probe-panel {
+    background: #fdfcfb;
+    border-top: 1px solid var(--border);
+    padding: 1rem 1.1rem 1rem;
+    display: none;
+  }
+
+  .comp-card.open .probe-panel { display: block; }
+
+  .probe-heading {
+    font-size: 0.7rem;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 0.7rem;
+  }
+
+  .probe-list { list-style: none; display: flex; flex-direction: column; gap: 0.5rem; }
+
+  .probe-list li {
+    display: flex;
+    gap: 0.6rem;
+    font-size: 0.83rem;
+    color: #3a3530;
+    line-height: 1.5;
+  }
+
+  .probe-num {
+    flex-shrink: 0;
+    width: 18px; height: 18px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.66rem;
+    font-weight: 500;
+    margin-top: 1px;
+  }
+
+  .self .probe-num { background: var(--purple-light); color: var(--purple); }
+  .people .probe-num { background: var(--teal-light); color: var(--teal); }
+  .plan .probe-num { background: var(--accent-light); color: var(--accent); }
+
+  .notes-row {
+    margin-top: 0.9rem;
+  }
+
+  .notes-row label { font-size: 0.72rem; color: var(--muted); display: block; margin-bottom: 0.3rem; }
+
+  .notes-row textarea {
+    width: 100%;
+    padding: 0.5rem 0.6rem;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: white;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.82rem;
+    font-weight: 300;
+    color: var(--ink);
+    resize: vertical;
+    min-height: 56px;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+
+  .notes-row textarea:focus { border-color: var(--muted); }
+
+  /* ── RIGHT PANEL ── */
+  .right-panel {
+    background: var(--cream);
+    border-left: 1px solid var(--border);
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .panel-title {
+    font-size: 0.72rem;
+    font-weight: 500;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 0.75rem;
+  }
+
+  /* Radar summary */
+  .radar-wrap {
+    background: white;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    padding: 1.1rem;
+  }
+
+  .area-scores { display: flex; flex-direction: column; gap: 0.85rem; }
+
+  .score-row { }
+
+  .score-row-top {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.8rem;
+    margin-bottom: 0.3rem;
+  }
+
+  .score-name { font-weight: 400; }
+  .score-val { color: var(--muted); font-size: 0.75rem; }
+
+  .score-track {
+    height: 6px;
+    background: var(--border);
+    border-radius: 6px;
+    overflow: hidden;
+  }
+
+  .score-bar {
+    height: 100%;
+    border-radius: 6px;
+    transition: width 0.5s ease;
+  }
+
+  .score-bar.self-bar { background: var(--purple); }
+  .score-bar.people-bar { background: var(--teal); }
+  .score-bar.plan-bar { background: var(--accent); }
+
+  /* Top concerns */
+  .concerns-box {
+    background: white;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    padding: 1.1rem;
+  }
+
+  .concern-item {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.45rem 0;
+    border-bottom: 1px solid #f0ede8;
+    font-size: 0.82rem;
+  }
+
+  .concern-item:last-child { border-bottom: none; }
+
+  .concern-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .concern-score {
+    margin-left: auto;
+    font-size: 0.72rem;
+    color: var(--muted);
+  }
+
+  .empty-msg {
+    font-size: 0.8rem;
+    color: var(--muted);
+    font-style: italic;
+  }
+
+  /* Action buttons */
+  .actions { display: flex; flex-direction: column; gap: 0.5rem; }
+
+  .btn-primary {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    width: 100%;
+    padding: 0.75rem 1rem;
+    background: var(--ink);
+    color: var(--paper);
+    border: none;
+    border-radius: 8px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 400;
+    cursor: pointer;
+    transition: opacity 0.15s;
+  }
+
+  .btn-primary:hover { opacity: 0.85; }
+
+  .btn-secondary {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    width: 100%;
+    padding: 0.7rem 1rem;
+    background: transparent;
+    color: var(--ink);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 400;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+
+  .btn-secondary:hover { background: #e5e0d8; }
+
+  /* Modal */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(26,23,20,0.55);
+    z-index: 100;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+  }
+
+  .modal-overlay.open { display: flex; }
+
+  .modal {
+    background: var(--paper);
+    border-radius: 14px;
+    width: 100%;
+    max-width: 640px;
+    max-height: 85vh;
+    overflow-y: auto;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+  }
+
+  .modal-header {
+    padding: 1.5rem 1.75rem 1rem;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    position: sticky;
+    top: 0;
+    background: var(--paper);
+  }
+
+  .modal-header h3 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.3rem;
+    font-weight: 400;
+  }
+
+  .modal-header p { font-size: 0.8rem; color: var(--muted); margin-top: 0.2rem; }
+
+  .modal-close {
+    background: none;
+    border: none;
+    font-size: 1.3rem;
+    cursor: pointer;
+    color: var(--muted);
+    line-height: 1;
+    flex-shrink: 0;
+    margin-top: -2px;
+  }
+
+  .modal-body { padding: 1.25rem 1.75rem 1.75rem; }
+
+  .client-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 1rem; }
+
+  .field-group { display: flex; flex-direction: column; gap: 0.3rem; }
+  .field-group.full { grid-column: 1 / -1; }
+
+  .field-group label { font-size: 0.75rem; color: var(--muted); font-weight: 500; }
+
+  .field-group input, .field-group select {
+    padding: 0.5rem 0.65rem;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: white;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 300;
+    color: var(--ink);
+    outline: none;
+    transition: border-color 0.15s;
+  }
+
+  .field-group input:focus, .field-group select:focus { border-color: var(--muted); }
+
+  .summary-area { margin-top: 1rem; }
+
+  .summary-area-title {
+    font-size: 0.78rem;
+    font-weight: 500;
+    margin: 1rem 0 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .summary-badge {
+    font-size: 0.7rem;
+    padding: 0.15rem 0.5rem;
+    border-radius: 100px;
+    font-weight: 300;
+  }
+
+  .summary-comp {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.45rem 0;
+    border-bottom: 1px solid #f0ede8;
+    font-size: 0.83rem;
+  }
+
+  .summary-comp:last-child { border-bottom: none; }
+
+  .stars-mini { font-size: 12px; }
+
+  .summary-note { font-size: 0.75rem; color: var(--muted); font-style: italic; margin-top: 0.2rem; }
+
+  .recommend-box {
+    margin-top: 1.25rem;
+    padding: 1rem;
+    background: white;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+  }
+
+  .recommend-title {
+    font-size: 0.72rem;
+    font-weight: 500;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 0.6rem;
+  }
+
+  .recommend-tags { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+
+  .rtag {
+    padding: 0.3rem 0.7rem;
+    border-radius: 100px;
+    font-size: 0.78rem;
+    font-weight: 400;
+  }
+
+  .rtag.self { background: var(--purple-light); color: var(--purple); }
+  .rtag.people { background: var(--teal-light); color: var(--teal); }
+  .rtag.plan { background: var(--accent-light); color: var(--accent); }
+
+  .print-note {
+    margin-top: 1rem;
+    font-size: 0.75rem;
+    color: var(--muted);
+    text-align: center;
+  }
+
+  .modal-footer {
+    padding: 1rem 1.75rem 1.5rem;
+    border-top: 1px solid var(--border);
+    display: flex;
+    gap: 0.5rem;
+    justify-content: flex-end;
+  }
+
+  .modal-footer .btn-secondary { width: auto; padding: 0.6rem 1.2rem; }
+  .modal-footer .btn-primary { width: auto; padding: 0.6rem 1.4rem; }
+
+  @media print {
+    header, .left-nav, .right-panel { display: none !important; }
+    .modal-overlay { display: flex !important; position: static; background: none; }
+    .modal { box-shadow: none; max-height: none; }
+    .modal-footer, .modal-close { display: none !important; }
+    body { background: white; }
+  }
+
+  @media (max-width: 900px) {
+    .layout { grid-template-columns: 1fr; }
+    .left-nav, .right-panel { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-left">
+    <h1>Leadership Needs <em>Diagnostic</em></h1>
+    <p>Rate each competency to surface the client's real development priorities before proposing a program.</p>
+  </div>
+  <div class="header-right">
+    <span class="pill">Sales Tool</span>
+  </div>
+</header>
+
+<div class="layout">
+
+  <!-- LEFT NAV -->
+  <aside class="left-nav">
+    <div class="nav-section">
+      <div class="nav-label">Areas</div>
+      <button class="area-btn self active" onclick="switchArea('self')">
+        <span class="area-dot dot-self"></span>
+        <span class="area-name">Self Management</span>
+        <span class="area-count" id="count-self">0/8</span>
+      </button>
+      <button class="area-btn people" onclick="switchArea('people')">
+        <span class="area-dot dot-people"></span>
+        <span class="area-name">People Management</span>
+        <span class="area-count" id="count-people">0/9</span>
+      </button>
+      <button class="area-btn plan" onclick="switchArea('plan')">
+        <span class="area-dot dot-plan"></span>
+        <span class="area-name">Planning & Executing</span>
+        <span class="area-count" id="count-plan">0/9</span>
+      </button>
+    </div>
+    <div class="nav-divider"></div>
+    <div class="progress-section">
+      <div class="progress-label">
+        <span>Overall progress</span>
+        <span id="prog-pct">0%</span>
+      </div>
+      <div class="progress-bar">
+        <div class="progress-fill" id="prog-fill" style="width:0%"></div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main" id="main-content"></main>
+
+  <!-- RIGHT PANEL -->
+  <aside class="right-panel">
+    <div>
+      <div class="panel-title">Area scores</div>
+      <div class="radar-wrap">
+        <div class="area-scores">
+          <div class="score-row">
+            <div class="score-row-top">
+              <span class="score-name">Self Management</span>
+              <span class="score-val" id="score-self-label">—</span>
+            </div>
+            <div class="score-track"><div class="score-bar self-bar" id="score-self-bar" style="width:0%"></div></div>
+          </div>
+          <div class="score-row">
+            <div class="score-row-top">
+              <span class="score-name">People Management</span>
+              <span class="score-val" id="score-people-label">—</span>
+            </div>
+            <div class="score-track"><div class="score-bar people-bar" id="score-people-bar" style="width:0%"></div></div>
+          </div>
+          <div class="score-row">
+            <div class="score-row-top">
+              <span class="score-name">Planning & Executing</span>
+              <span class="score-val" id="score-plan-label">—</span>
+            </div>
+            <div class="score-track"><div class="score-bar plan-bar" id="score-plan-bar" style="width:0%"></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <div class="panel-title">Priority gaps (rated 1–2)</div>
+      <div class="concerns-box" id="concerns-box">
+        <div class="empty-msg">Rate competencies to surface gaps</div>
+      </div>
+    </div>
+
+    <div class="actions">
+      <button class="btn-primary" onclick="openSummary()">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 12h6M9 16h6M5 20h14a2 2 0 002-2V6l-4-4H5a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
+        Generate summary
+      </button>
+      <button class="btn-secondary" onclick="resetAll()">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 4v5h5M20 20v-5h-5M4.05 9A9 9 0 1120 15.95"/></svg>
+        Reset
+      </button>
+    </div>
+  </aside>
+</div>
+
+<!-- SUMMARY MODAL -->
+<div class="modal-overlay" id="modal">
+  <div class="modal">
+    <div class="modal-header">
+      <div>
+        <h3>Session Summary</h3>
+        <p>Review findings and recommended focus areas before proposing a program.</p>
+      </div>
+      <button class="modal-close" onclick="closeModal()">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="client-fields">
+        <div class="field-group">
+          <label>Client / Organisation</label>
+          <input type="text" id="client-name" placeholder="e.g. Acme Corp">
+        </div>
+        <div class="field-group">
+          <label>Contact name</label>
+          <input type="text" id="contact-name" placeholder="e.g. Sarah Tan">
+        </div>
+        <div class="field-group">
+          <label>Leader level</label>
+          <select id="leader-level">
+            <option value="">Select level…</option>
+            <option>First-time manager</option>
+            <option>Mid-level manager</option>
+            <option>Senior leader / Director</option>
+            <option>VP / C-suite</option>
+            <option>Mixed cohort</option>
+          </select>
+        </div>
+        <div class="field-group">
+          <label>Team size</label>
+          <select id="team-size">
+            <option value="">Select size…</option>
+            <option>&lt; 10</option>
+            <option>10–50</option>
+            <option>50–200</option>
+            <option>200+</option>
+          </select>
+        </div>
+      </div>
+      <div id="modal-summary"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" onclick="printSummary()">Print / Save PDF</button>
+      <button class="btn-primary" onclick="closeModal()">Close</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const DATA = {
+  self: {
+    label: 'Self Management',
+    desc: 'How the leader manages their own behaviour, mindset, and presence',
+    competencies: [
+      { id: 's1', name: 'Self-awareness', desc: 'Understands own strengths, blind spots, and emotional patterns', questions: ['How would your team describe your leadership style — and how does that compare with your own view?', 'When was the last time you received feedback that genuinely surprised you?', 'What situations tend to bring out the worst in you as a leader?'] },
+      { id: 's2', name: 'Emotional regulation', desc: 'Stays composed and thoughtful under pressure or ambiguity', questions: ['Can you describe a recent high-pressure moment — how did you manage your response?', 'How do your direct reports know when you are stressed or frustrated?', 'What strategies do you currently use to stay grounded in difficult conversations?'] },
+      { id: 's3', name: 'Growth mindset', desc: 'Actively seeks feedback and learns from setbacks', questions: ['When something goes wrong, how do you personally process it?', 'How often do you actively seek feedback from your peers or direct reports?', 'Tell me about a time you changed your mind because of new information or a different perspective.'] },
+      { id: 's4', name: 'Personal accountability', desc: 'Takes ownership of decisions, outcomes, and mistakes', questions: ['Can you give an example of a decision you made that did not pan out — how did you handle it?', 'How do you ensure you follow through on commitments you make to your team?', 'How do you model accountability for the people who report to you?'] },
+      { id: 's5', name: 'Time & energy management', desc: 'Prioritises effectively and sustains performance without burnout', questions: ['How do you decide what only you can do versus what you delegate?', 'When was the last time you felt genuinely overwhelmed — what caused it and what did you do?', 'How do you protect thinking time or strategic time in your calendar?'] },
+      { id: 's6', name: 'Resilience & adaptability', desc: 'Recovers from adversity and adjusts to change with agility', questions: ['What is the most significant change your team has had to navigate in the past year?', 'How do you personally bounce back after a major setback?', 'How confident are your people in your ability to handle uncertainty?'] },
+      { id: 's7', name: 'Values-driven decision making', desc: 'Acts with integrity and consistency aligned to personal and organisational values', questions: ['Have you ever had to make a decision that put business results at odds with your personal values? How did you handle it?', 'How clear is your team on what you stand for and will not compromise on?', 'How do you ensure your decisions are consistent — that people can predict your reasoning?'] },
+      { id: 's8', name: 'Executive presence', desc: 'Commands credibility and confidence across all levels', questions: ['How do you typically come across in a room with senior stakeholders — and how do you know?', 'When do you feel most and least confident as a leader?', 'What is the gap between how you intend to come across and how you actually land?'] },
+    ]
+  },
+  people: {
+    label: 'People Management',
+    desc: 'How the leader develops, motivates, and manages others around them',
+    competencies: [
+      { id: 'p1', name: 'Coaching & developing others', desc: 'Grows capability in individuals through feedback and stretch challenges', questions: ['How do you identify each team member\'s development needs — how structured is that process?', 'When someone underperforms, what\'s your default response?', 'How much time do you spend each month on deliberate one-on-one development conversations?'] },
+      { id: 'p2', name: 'Delegating & instructing', desc: 'Assigns work clearly with appropriate authority and follow-through', questions: ['What stops you from delegating more than you currently do?', 'How do you set someone up for success when you hand off a task?', 'How do you know when you are micromanaging versus staying appropriately close?'] },
+      { id: 'p3', name: 'Inspiring & motivating', desc: 'Energises teams around a shared purpose and vision', questions: ['How clearly does your team understand where you are all heading — and why it matters?', 'What do you do when morale or engagement drops on your team?', 'How do you tailor your motivational approach to different individuals?'] },
+      { id: 'p4', name: 'Managing performance', desc: 'Sets clear expectations and holds individuals accountable', questions: ['How do you handle it when someone consistently misses expectations?', 'How clear are your performance expectations — and how do you know people understand them?', 'Have you had to let someone go or put someone on a performance plan? How did you approach it?'] },
+      { id: 'p5', name: 'Building trust & psychological safety', desc: 'Creates an environment where people feel safe to speak up', questions: ['How do you know if someone on your team is holding back?', 'What do you actively do to create a space where people feel safe to challenge you?', 'When was the last time someone disagreed with you openly — and how did you respond?'] },
+      { id: 'p6', name: 'Conflict resolution', desc: 'Addresses tensions constructively and enables productive disagreement', questions: ['How do you handle conflict between two team members — what is your typical approach?', 'How comfortable are you with direct confrontation when something needs to be said?', 'Describe a difficult interpersonal situation on your team and how it was resolved.'] },
+      { id: 'p7', name: 'Inclusion & diversity', desc: 'Fosters belonging and leverages diverse perspectives', questions: ['How do you ensure all voices are heard in your team discussions?', 'What signals tell you that someone feels like they truly belong on the team?', 'Have you noticed any patterns in whose ideas get actioned more than others — and what have you done about it?'] },
+      { id: 'p8', name: 'Influence & stakeholder management', desc: 'Builds alignment and buy-in across levels and functions', questions: ['Who are the key stakeholders you need to influence — and where are the gaps?', 'How do you approach getting buy-in for an idea that faces resistance?', 'Tell me about a time you had to shift someone\'s perspective without having formal authority over them.'] },
+      { id: 'p9', name: 'Cross-functional collaboration', desc: 'Works effectively across teams, silos, and organisational boundaries', questions: ['Where do the biggest friction points sit between your team and other parts of the business?', 'How do you build relationships with peers in other functions?', 'How do you manage competing priorities when you are dependent on a team you do not manage?'] },
+    ]
+  },
+  plan: {
+    label: 'Planning & Executing',
+    desc: 'How the leader translates strategy into clear priorities and drives results',
+    competencies: [
+      { id: 'x1', name: 'Strategic mindset', desc: 'Thinks beyond the immediate to anticipate trends and opportunities', questions: ['How far ahead does your planning horizon typically extend?', 'How do you stay ahead of trends that could affect your team or business?', 'When do operational demands crowd out strategic thinking — and how do you prevent it?'] },
+      { id: 'x2', name: 'Business acumen', desc: 'Understands commercial drivers, financial metrics, and market dynamics', questions: ['How comfortable are you discussing your unit\'s P&L with senior leadership?', 'How well does your team understand how the business makes money and where they fit in that?', 'What is the biggest commercial challenge your business is facing right now?'] },
+      { id: 'x3', name: 'Goal setting & prioritisation', desc: 'Translates strategy into clear, measurable objectives and focus areas', questions: ['How do you decide what your team focuses on when everything feels urgent?', 'How do you ensure team goals are directly tied to the organisation\'s strategic priorities?', 'What happens when priorities shift mid-year — how do you manage that?'] },
+      { id: 'x4', name: 'Decision making', desc: 'Makes timely, well-reasoned decisions even with incomplete information', questions: ['How do you make decisions when you do not have all the information you would like?', 'How do you know when to make a call yourself versus involve others?', 'Describe a significant decision you made recently — what was the process and what would you do differently?'] },
+      { id: 'x5', name: 'Problem solving & critical thinking', desc: 'Diagnoses root causes and develops practical, innovative solutions', questions: ['When a problem keeps coming back, what is your approach to figuring out why?', 'How do you encourage your team to bring you solutions rather than just problems?', 'Tell me about a complex problem you recently solved — how did you structure your thinking?'] },
+      { id: 'x6', name: 'Change management', desc: 'Leads teams through transitions while minimising disruption', questions: ['What significant change is your organisation going through right now — and how is your team navigating it?', 'How do you bring people along when they are resistant to change?', 'What is the biggest change failure you have witnessed — what went wrong?'] },
+      { id: 'x7', name: 'Risk management', desc: 'Identifies, assesses, and mitigates risks without stalling progress', questions: ['How do you balance moving fast with managing risk appropriately?', 'What risks are you currently watching in your area that keep you up at night?', 'How do you make risk visible to your team and stakeholders?'] },
+      { id: 'x8', name: 'Resource allocation', desc: 'Deploys people, budget, and time efficiently toward key priorities', questions: ['How do you decide where to invest people and budget when resources are tight?', 'How do you ensure your highest-value work gets your best people and attention?', 'Where do you feel your team\'s resources are misaligned with priorities?'] },
+      { id: 'x9', name: 'Results orientation', desc: 'Drives execution with urgency, discipline, and accountability for outcomes', questions: ['How do you create a culture of urgency without burning people out?', 'What is your team\'s track record on delivering what it commits to?', 'What stands in the way of your team executing more consistently?'] },
+    ]
+  }
+};
+
+const ratings = {};
+const notes = {};
+let currentArea = 'self';
+
+function switchArea(area) {
+  currentArea = area;
+  document.querySelectorAll('.area-btn').forEach(b => b.classList.remove('active'));
+  document.querySelector(`.area-btn.${area}`).classList.add('active');
+  renderMain();
+}
+
+function renderMain() {
+  const area = DATA[currentArea];
+  const color = currentArea;
+
+  const tagColors = { self: '#4a3d7a', people: '#2a6b6b', plan: '#b85c2a' };
+  const dotBg = tagColors[color];
+
+  let html = `
+    <div class="area-header">
+      <div class="area-tag">
+        <span class="dot-sm" style="background:${dotBg};width:7px;height:7px;border-radius:50%;display:inline-block;"></span>
+        Leadership area
+      </div>
+      <h2>${area.label}</h2>
+      <p>${area.desc}</p>
+    </div>
+    <div class="competencies">
+  `;
+
+  area.competencies.forEach(comp => {
+    const r = ratings[comp.id] || 0;
+    const isOpen = false;
+    const isRated = r > 0;
+    const ratingLabels = ['', 'Critical gap', 'Needs work', 'Developing', 'Proficient', 'Strength'];
+
+    html += `
+      <div class="comp-card ${color} ${isRated ? 'rated' : ''}" id="card-${comp.id}">
+        <div class="comp-top" onclick="toggleCard('${comp.id}')">
+          <div class="comp-info">
+            <div class="comp-name">${comp.name}</div>
+            <div class="comp-desc">${comp.desc}</div>
+          </div>
+          <svg class="comp-chevron" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>
+        </div>
+        <div class="comp-rating">
+          <span class="rating-label">Gap level:</span>
+          <div class="stars" id="stars-${comp.id}">
+            ${[1,2,3,4,5].map(i => `<button class="star ${r >= i ? 'lit' : ''}" onclick="setRating('${comp.id}', ${i})" title="${ratingLabels[i]}">★</button>`).join('')}
+          </div>
+          <span class="rating-text" id="rtxt-${comp.id}">${r > 0 ? ratingLabels[r] : 'Not rated'}</span>
+        </div>
+        <div class="probe-panel">
+          <div class="probe-heading">Probing questions</div>
+          <ul class="probe-list">
+            ${comp.questions.map((q,i) => `
+              <li>
+                <span class="probe-num">${i+1}</span>
+                <span>${q}</span>
+              </li>
+            `).join('')}
+          </ul>
+          <div class="notes-row">
+            <label>Notes from conversation</label>
+            <textarea placeholder="Capture key insights, client quotes, observations…" onchange="saveNote('${comp.id}', this.value)">${notes[comp.id] || ''}</textarea>
+          </div>
+        </div>
+      </div>
+    `;
+  });
+
+  html += `</div>`;
+  document.getElementById('main-content').innerHTML = html;
+  updateSidebar();
+}
+
+function toggleCard(id) {
+  const card = document.getElementById(`card-${id}`);
+  card.classList.toggle('open');
+}
+
+function setRating(id, val) {
+  ratings[id] = val;
+  const ratingLabels = ['', 'Critical gap', 'Needs work', 'Developing', 'Proficient', 'Strength'];
+  const stars = document.querySelectorAll(`#stars-${id} .star`);
+  stars.forEach((s, i) => s.classList.toggle('lit', i < val));
+  document.getElementById(`rtxt-${id}`).textContent = ratingLabels[val];
+  const card = document.getElementById(`card-${id}`);
+  if (card) {
+    card.classList.add('rated');
+    if (!card.classList.contains('open')) card.classList.add('open');
+  }
+  updateSidebar();
+}
+
+function saveNote(id, val) {
+  notes[id] = val;
+}
+
+function updateSidebar() {
+  const total = Object.values(DATA).flatMap(a => a.competencies).length;
+  const rated = Object.keys(ratings).length;
+  const pct = Math.round((rated / total) * 100);
+
+  document.getElementById('prog-fill').style.width = pct + '%';
+  document.getElementById('prog-pct').textContent = pct + '%';
+
+  // Area counts and scores
+  Object.keys(DATA).forEach(areaKey => {
+    const comps = DATA[areaKey].competencies;
+    const areaRated = comps.filter(c => ratings[c.id]);
+    const areaTotal = comps.length;
+    document.getElementById(`count-${areaKey}`).textContent = `${areaRated.length}/${areaTotal}`;
+
+    if (areaRated.length > 0) {
+      const avg = areaRated.reduce((s, c) => s + ratings[c.id], 0) / areaRated.length;
+      const pctBar = ((avg - 1) / 4) * 100;
+      document.getElementById(`score-${areaKey}-bar`).style.width = pctBar + '%';
+      document.getElementById(`score-${areaKey}-label`).textContent = avg.toFixed(1) + ' / 5';
+    } else {
+      document.getElementById(`score-${areaKey}-bar`).style.width = '0%';
+      document.getElementById(`score-${areaKey}-label`).textContent = '—';
+    }
+  });
+
+  // Concerns (rated 1-2)
+  const allComps = Object.values(DATA).flatMap(a => a.competencies.map(c => ({ ...c, area: a })));
+  const gaps = allComps.filter(c => ratings[c.id] && ratings[c.id] <= 2)
+    .sort((a, b) => ratings[a.id] - ratings[b.id]);
+
+  const box = document.getElementById('concerns-box');
+  if (gaps.length === 0) {
+    box.innerHTML = '<div class="empty-msg">No critical gaps yet — rate some competencies</div>';
+  } else {
+    const dotMap = { self: 'var(--purple)', people: 'var(--teal)', plan: 'var(--accent)' };
+    box.innerHTML = gaps.slice(0, 6).map(c => {
+      const areaKey = Object.keys(DATA).find(k => DATA[k].competencies.some(x => x.id === c.id));
+      return `
+        <div class="concern-item">
+          <span class="concern-dot" style="background:${dotMap[areaKey]}"></span>
+          <span style="font-size:0.82rem">${c.name}</span>
+          <span class="concern-score">${'★'.repeat(ratings[c.id])}</span>
+        </div>
+      `;
+    }).join('');
+  }
+}
+
+function openSummary() {
+  const modal = document.getElementById('modal');
+  modal.classList.add('open');
+  buildModalSummary();
+}
+
+function closeModal() {
+  document.getElementById('modal').classList.remove('open');
+}
+
+function buildModalSummary() {
+  const ratingLabels = ['', 'Critical gap', 'Needs work', 'Developing', 'Proficient', 'Strength'];
+  let html = '';
+
+  // Recommended focus areas
+  const allComps = Object.values(DATA).flatMap((a, i) => {
+    const key = Object.keys(DATA)[i];
+    return a.competencies.map(c => ({ ...c, areaKey: key, areaLabel: a.label }));
+  });
+
+  // Fix: rebuild with proper areaKey
+  const allCompsFixed = [];
+  Object.keys(DATA).forEach(areaKey => {
+    DATA[areaKey].competencies.forEach(c => {
+      allCompsFixed.push({ ...c, areaKey, areaLabel: DATA[areaKey].label });
+    });
+  });
+
+  const ratedComps = allCompsFixed.filter(c => ratings[c.id]);
+  const gaps = ratedComps.filter(c => ratings[c.id] <= 2).sort((a, b) => ratings[a.id] - ratings[b.id]);
+  const strengths = ratedComps.filter(c => ratings[c.id] >= 4);
+
+  // Per-area summary
+  Object.keys(DATA).forEach(areaKey => {
+    const area = DATA[areaKey];
+    const areaComps = area.competencies.filter(c => ratings[c.id]);
+    if (areaComps.length === 0) return;
+
+    const colorMap = { self: 'var(--purple)', people: 'var(--teal)', plan: 'var(--accent)' };
+    const badgeMap = { self: 'background:var(--purple-light);color:var(--purple)', people: 'background:var(--teal-light);color:var(--teal)', plan: 'background:var(--accent-light);color:var(--accent)' };
+
+    html += `
+      <div class="summary-area-title">
+        <span style="width:8px;height:8px;border-radius:50%;background:${colorMap[areaKey]};display:inline-block;"></span>
+        ${area.label}
+      </div>
+    `;
+
+    areaComps.forEach(c => {
+      const r = ratings[c.id];
+      const note = notes[c.id];
+      html += `
+        <div class="summary-comp">
+          <div>
+            <div style="font-size:0.83rem;font-weight:500">${c.name}</div>
+            ${note ? `<div class="summary-note">"${note.slice(0, 80)}${note.length > 80 ? '…' : ''}"</div>` : ''}
+          </div>
+          <div style="text-align:right;flex-shrink:0;margin-left:0.5rem">
+            <span class="summary-badge" style="${badgeMap[areaKey]}">${ratingLabels[r]}</span>
+          </div>
+        </div>
+      `;
+    });
+  });
+
+  // Recommendations
+  if (gaps.length > 0 || strengths.length > 0) {
+    html += `
+      <div class="recommend-box">
+        <div class="recommend-title">Recommended focus areas</div>
+        <div class="recommend-tags">
+    `;
+    gaps.slice(0, 5).forEach(c => {
+      html += `<span class="rtag ${c.areaKey}">${c.name}</span>`;
+    });
+    html += `</div></div>`;
+  }
+
+  if (html === '') {
+    html = '<p style="font-size:0.85rem;color:var(--muted);font-style:italic">Rate at least one competency to generate a summary.</p>';
+  }
+
+  document.getElementById('modal-summary').innerHTML = html;
+}
+
+function printSummary() {
+  window.print();
+}
+
+function resetAll() {
+  if (!confirm('Reset all ratings and notes?')) return;
+  Object.keys(ratings).forEach(k => delete ratings[k]);
+  Object.keys(notes).forEach(k => delete notes[k]);
+  renderMain();
+  updateSidebar();
+}
+
+// Init
+renderMain();
+</script>
+</body>
+</html>
