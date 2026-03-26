@@ -642,6 +642,51 @@
 
   .summary-note { font-size: 0.75rem; color: var(--muted); font-style: italic; margin-top: 0.2rem; }
 
+  /* Radar chart */
+  .radar-section {
+    margin-bottom: 1.5rem;
+    background: white;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    padding: 1.25rem 1.25rem 1rem;
+  }
+
+  .radar-section-title {
+    font-size: 0.72rem;
+    font-weight: 500;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 1rem;
+  }
+
+  .radar-canvas-wrap {
+    display: flex;
+    justify-content: center;
+  }
+
+  .radar-legend {
+    display: flex;
+    justify-content: center;
+    gap: 1.25rem;
+    margin-top: 0.75rem;
+    flex-wrap: wrap;
+  }
+
+  .radar-legend-item {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.75rem;
+    color: var(--muted);
+  }
+
+  .radar-legend-dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
   .recommend-box {
     margin-top: 1.25rem;
     padding: 1rem;
@@ -1065,13 +1110,6 @@ function buildModalSummary() {
   const ratingLabels = ['', 'Critical gap', 'Needs work', 'Developing', 'Proficient', 'Strength'];
   let html = '';
 
-  // Recommended focus areas
-  const allComps = Object.values(DATA).flatMap((a, i) => {
-    const key = Object.keys(DATA)[i];
-    return a.competencies.map(c => ({ ...c, areaKey: key, areaLabel: a.label }));
-  });
-
-  // Fix: rebuild with proper areaKey
   const allCompsFixed = [];
   Object.keys(DATA).forEach(areaKey => {
     DATA[areaKey].competencies.forEach(c => {
@@ -1081,16 +1119,32 @@ function buildModalSummary() {
 
   const ratedComps = allCompsFixed.filter(c => ratings[c.id]);
   const gaps = ratedComps.filter(c => ratings[c.id] <= 2).sort((a, b) => ratings[a.id] - ratings[b.id]);
-  const strengths = ratedComps.filter(c => ratings[c.id] >= 4);
+
+  // Radar chart placeholder — rendered after innerHTML set
+  html += `
+    <div class="radar-section">
+      <div class="radar-section-title">Competency radar</div>
+      <div class="radar-canvas-wrap">
+        <canvas id="radar-canvas" width="600" height="600" style="max-width:100%"></canvas>
+      </div>
+      <div class="radar-legend">
+        <div class="radar-legend-item"><span class="radar-legend-dot" style="background:#4a3d7a"></span>Self Management</div>
+        <div class="radar-legend-item"><span class="radar-legend-dot" style="background:#2a6b6b"></span>People Management</div>
+        <div class="radar-legend-item"><span class="radar-legend-dot" style="background:#b85c2a"></span>Planning & Executing</div>
+      </div>
+    </div>
+  `;
 
   // Per-area summary
+  const colorMap = { self: 'var(--purple)', people: 'var(--teal)', plan: 'var(--accent)' };
+  const badgeMap = { self: 'background:var(--purple-light);color:var(--purple)', people: 'background:var(--teal-light);color:var(--teal)', plan: 'background:var(--accent-light);color:var(--accent)' };
+
+  let hasAny = false;
   Object.keys(DATA).forEach(areaKey => {
     const area = DATA[areaKey];
     const areaComps = area.competencies.filter(c => ratings[c.id]);
     if (areaComps.length === 0) return;
-
-    const colorMap = { self: 'var(--purple)', people: 'var(--teal)', plan: 'var(--accent)' };
-    const badgeMap = { self: 'background:var(--purple-light);color:var(--purple)', people: 'background:var(--teal-light);color:var(--teal)', plan: 'background:var(--accent-light);color:var(--accent)' };
+    hasAny = true;
 
     html += `
       <div class="summary-area-title">
@@ -1116,8 +1170,7 @@ function buildModalSummary() {
     });
   });
 
-  // Recommendations
-  if (gaps.length > 0 || strengths.length > 0) {
+  if (gaps.length > 0) {
     html += `
       <div class="recommend-box">
         <div class="recommend-title">Recommended focus areas</div>
@@ -1129,15 +1182,480 @@ function buildModalSummary() {
     html += `</div></div>`;
   }
 
-  if (html === '') {
+  if (!hasAny) {
     html = '<p style="font-size:0.85rem;color:var(--muted);font-style:italic">Rate at least one competency to generate a summary.</p>';
   }
 
   document.getElementById('modal-summary').innerHTML = html;
+  requestAnimationFrame(() => drawRadar());
+}
+
+function drawRadar() {
+  const canvas = document.getElementById('radar-canvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  const cx = W / 2, cy = H / 2;
+
+  const axes = [];
+  const areaColors = { self: '#4a3d7a', people: '#2a6b6b', plan: '#b85c2a' };
+
+  Object.keys(DATA).forEach(areaKey => {
+    DATA[areaKey].competencies.forEach(c => {
+      axes.push({ id: c.id, name: c.name, areaKey });
+    });
+  });
+
+  const SHORT_LABELS = {
+    s1: 'Self-awareness', s2: 'Emotional reg.', s3: 'Growth mindset',
+    s4: 'Accountability', s5: 'Time mgmt', s6: 'Resilience',
+    s7: 'Values-driven', s8: 'Exec. presence',
+    p1: 'Coaching', p2: 'Delegating', p3: 'Inspiring',
+    p4: 'Performance', p5: 'Trust & safety', p6: 'Conflict res.',
+    p7: 'Inclusion', p8: 'Influence', p9: 'Collaboration',
+    x1: 'Strategy', x2: 'Biz acumen', x3: 'Goal setting',
+    x4: 'Decisions', x5: 'Problem solving', x6: 'Change mgmt',
+    x7: 'Risk mgmt', x8: 'Resources', x9: 'Results'
+  };
+
+  const n = axes.length;
+  const maxR = Math.min(cx, cy) - 96;
+  const levels = 5;
+  ctx.clearRect(0, 0, W, H);
+
+  const angle = i => (Math.PI * 2 * i / n) - Math.PI / 2;
+
+  // Grid rings
+  for (let l = 1; l <= levels; l++) {
+    const r = (maxR / levels) * l;
+    ctx.beginPath();
+    for (let i = 0; i < n; i++) {
+      const a = angle(i);
+      const x = cx + r * Math.cos(a), y = cy + r * Math.sin(a);
+      i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+    }
+    ctx.closePath();
+    ctx.strokeStyle = l === levels ? '#c8c3bb' : '#e8e3db';
+    ctx.lineWidth = l === levels ? 1.2 : 0.7;
+    ctx.stroke();
+    ctx.fillStyle = '#a09890';
+    ctx.font = '10px DM Sans, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(String(l), cx + 4, cy - r + 10);
+  }
+
+  // Spokes — colour-coded by area
+  axes.forEach((ax, i) => {
+    const a = angle(i);
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.lineTo(cx + maxR * Math.cos(a), cy + maxR * Math.sin(a));
+    ctx.strokeStyle = areaColors[ax.areaKey] + '33';
+    ctx.lineWidth = 0.8;
+    ctx.stroke();
+  });
+
+  // ── SINGLE connected polygon across ALL axes ──
+  // Fill
+  ctx.beginPath();
+  axes.forEach((ax, i) => {
+    const r = ratings[ax.id] || 0;
+    const radius = (maxR / levels) * r;
+    const a = angle(i);
+    const x = cx + radius * Math.cos(a), y = cy + radius * Math.sin(a);
+    i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+  });
+  ctx.closePath();
+  ctx.fillStyle = 'rgba(100,80,160,0.10)';
+  ctx.fill();
+
+  // Stroke — segments coloured by area, drawn section by section
+  // Draw the outline as coloured segments between consecutive axes
+  for (let i = 0; i < n; i++) {
+    const next = (i + 1) % n;
+    const ax1 = axes[i], ax2 = axes[next];
+    const r1 = ratings[ax1.id] || 0, r2 = ratings[ax2.id] || 0;
+    const rad1 = (maxR / levels) * r1, rad2 = (maxR / levels) * r2;
+    const a1 = angle(i), a2 = angle(next);
+    const x1 = cx + rad1 * Math.cos(a1), y1 = cy + rad1 * Math.sin(a1);
+    const x2 = cx + rad2 * Math.cos(a2), y2 = cy + rad2 * Math.sin(a2);
+
+    // Colour the segment by the source axis area
+    ctx.beginPath();
+    ctx.moveTo(x1, y1);
+    ctx.lineTo(x2, y2);
+    ctx.strokeStyle = areaColors[ax1.areaKey];
+    ctx.lineWidth = 2;
+    ctx.lineJoin = 'round';
+    ctx.stroke();
+  }
+
+  // Dots at each rated point — coloured by area
+  axes.forEach((ax, i) => {
+    const r = ratings[ax.id] || 0;
+    if (r === 0) return;
+    const radius = (maxR / levels) * r;
+    const a = angle(i);
+    const x = cx + radius * Math.cos(a), y = cy + radius * Math.sin(a);
+    ctx.beginPath();
+    ctx.arc(x, y, 4, 0, Math.PI * 2);
+    ctx.fillStyle = areaColors[ax.areaKey];
+    ctx.fill();
+    ctx.strokeStyle = '#fff';
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+  });
+
+  // Axis labels — curated short names, pushed well outside the ring
+  ctx.font = '500 10.5px DM Sans, sans-serif';
+  axes.forEach((ax, i) => {
+    const a = angle(i);
+    const labelR = maxR + 32;
+    const x = cx + labelR * Math.cos(a);
+    const y = cy + labelR * Math.sin(a);
+    const label = SHORT_LABELS[ax.id] || ax.name;
+    ctx.fillStyle = areaColors[ax.areaKey];
+    ctx.textAlign = x < cx - 12 ? 'right' : x > cx + 12 ? 'left' : 'center';
+    ctx.textBaseline = y < cy - 12 ? 'bottom' : y > cy + 12 ? 'top' : 'middle';
+    ctx.fillText(label, x, y);
+  });
 }
 
 function printSummary() {
-  window.print();
+  const clientName = document.getElementById('client-name').value || '—';
+  const contactName = document.getElementById('contact-name').value || '—';
+  const leaderLevel = document.getElementById('leader-level').value || '—';
+  const teamSize = document.getElementById('team-size').value || '—';
+
+  const today = new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
+
+  const ratingLabels = ['', 'Critical gap', 'Needs work', 'Developing', 'Proficient', 'Strength'];
+  const ratingColors = { 1: '#c0392b', 2: '#d35400', 3: '#b8870a', 4: '#27ae60', 5: '#1a7a4a' };
+  const areaColors = { self: '#4a3d7a', people: '#2a6b6b', plan: '#b85c2a' };
+  const areaLightBg = { self: '#f0eeff', people: '#e6f5f2', plan: '#fdf0e8' };
+
+  const allCompsFixed = [];
+  Object.keys(DATA).forEach(areaKey => {
+    DATA[areaKey].competencies.forEach(c => {
+      allCompsFixed.push({ ...c, areaKey, areaLabel: DATA[areaKey].label });
+    });
+  });
+  const ratedComps = allCompsFixed.filter(c => ratings[c.id]);
+  const gaps = ratedComps.filter(c => ratings[c.id] <= 2).sort((a, b) => ratings[a.id] - ratings[b.id]);
+
+  // Area avg scores
+  const areaScores = {};
+  Object.keys(DATA).forEach(areaKey => {
+    const comps = DATA[areaKey].competencies.filter(c => ratings[c.id]);
+    areaScores[areaKey] = comps.length
+      ? (comps.reduce((s, c) => s + ratings[c.id], 0) / comps.length).toFixed(1)
+      : null;
+  });
+
+  // Radar canvas image — grab from live canvas
+  const liveCanvas = document.getElementById('radar-canvas');
+  const radarImg = liveCanvas ? liveCanvas.toDataURL('image/png') : null;
+
+  // Build per-area breakdown rows
+  let areaBreakdown = '';
+  Object.keys(DATA).forEach(areaKey => {
+    const area = DATA[areaKey];
+    const areaComps = area.competencies.filter(c => ratings[c.id]);
+    if (areaComps.length === 0) return;
+    const color = areaColors[areaKey];
+    const bg = areaLightBg[areaKey];
+
+    areaBreakdown += `
+      <div style="margin-bottom:1.5rem;">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:0.5rem;padding-bottom:0.4rem;border-bottom:2px solid ${color};">
+          <span style="width:10px;height:10px;border-radius:50%;background:${color};display:inline-block;flex-shrink:0;"></span>
+          <span style="font-size:11px;font-weight:600;letter-spacing:0.07em;text-transform:uppercase;color:${color};">${area.label}</span>
+          ${areaScores[areaKey] ? `<span style="margin-left:auto;font-size:11px;color:#888;">avg ${areaScores[areaKey]} / 5</span>` : ''}
+        </div>
+        <table style="width:100%;border-collapse:collapse;">
+    `;
+
+    areaComps.forEach(c => {
+      const r = ratings[c.id];
+      const note = notes[c.id];
+      const rlabel = ratingLabels[r];
+      const rcol = ratingColors[r];
+      areaBreakdown += `
+        <tr style="border-bottom:1px solid #ede9e1;">
+          <td style="padding:6px 8px 6px 0;font-size:12px;font-weight:500;color:#1a1714;width:38%;">${c.name}</td>
+          <td style="padding:6px 4px;width:22%;">
+            <span style="display:inline-block;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:600;background:${rcol}18;color:${rcol};border:1px solid ${rcol}44;">${rlabel}</span>
+          </td>
+          <td style="padding:6px 0 6px 4px;font-size:11px;color:#888;font-style:italic;">${note ? '"' + note.slice(0, 90) + (note.length > 90 ? '…' : '') + '"' : ''}</td>
+        </tr>
+      `;
+    });
+
+    areaBreakdown += `</table></div>`;
+  });
+
+  // Gap tags
+  let gapTags = '';
+  gaps.slice(0, 8).forEach(c => {
+    const col = areaColors[c.areaKey];
+    gapTags += `<span style="display:inline-block;margin:3px 4px 3px 0;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:500;background:${col}15;color:${col};border:1px solid ${col}44;">${c.name}</span>`;
+  });
+
+  const reportHTML = `<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Leadership Diagnostic — ${clientName}</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'DM Sans', sans-serif; background: #fff; color: #1a1714; font-size: 13px; font-weight: 400; }
+
+  @page { size: A4; margin: 0; }
+  @media print {
+    body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .no-print { display: none !important; }
+    .page-break { page-break-before: always; }
+  }
+
+  .page { width: 210mm; min-height: 297mm; margin: 0 auto; }
+
+  /* Cover strip */
+  .cover-strip {
+    background: #1a1714;
+    padding: 40px 48px 36px;
+    color: #f5f2ec;
+  }
+  .cover-strip .eyebrow {
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #c9b99a;
+    margin-bottom: 10px;
+  }
+  .cover-strip h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 28px;
+    font-weight: 400;
+    line-height: 1.2;
+    letter-spacing: -0.01em;
+    margin-bottom: 6px;
+  }
+  .cover-strip h1 em { font-style: italic; color: #c9b99a; }
+  .cover-strip .subtitle { font-size: 12px; color: #a09890; font-weight: 300; }
+
+  /* Meta row */
+  .meta-row {
+    background: #f5f2ec;
+    border-bottom: 1px solid #ddd8cf;
+    padding: 18px 48px;
+    display: flex;
+    gap: 40px;
+    flex-wrap: wrap;
+  }
+  .meta-item { }
+  .meta-label { font-size: 9px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: #a09890; margin-bottom: 3px; }
+  .meta-value { font-size: 12px; font-weight: 400; color: #1a1714; }
+
+  /* Body */
+  .body { padding: 32px 48px 48px; }
+
+  /* Section heading */
+  .section-heading {
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #a09890;
+    margin-bottom: 14px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid #e8e3db;
+  }
+
+  /* Score cards */
+  .score-cards {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 32px;
+  }
+  .score-card {
+    flex: 1;
+    border-radius: 8px;
+    padding: 14px 16px;
+    border: 1px solid #e8e3db;
+  }
+  .score-card-label { font-size: 10px; font-weight: 500; margin-bottom: 4px; }
+  .score-card-val { font-size: 22px; font-weight: 300; line-height: 1; }
+  .score-card-sub { font-size: 9px; color: #a09890; margin-top: 3px; }
+
+  /* Radar */
+  .radar-wrap {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 8px;
+  }
+  .radar-wrap img { width: 320px; height: 320px; }
+
+  .legend-row {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    margin-bottom: 32px;
+  }
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 10px;
+    color: #7a7068;
+  }
+  .legend-dot { width: 8px; height: 8px; border-radius: 50%; }
+
+  /* Two-col layout for breakdown + gaps */
+  .two-col { display: grid; grid-template-columns: 1fr 260px; gap: 28px; }
+
+  /* Gap tags */
+  .gap-section { }
+  .gap-intro { font-size: 11px; color: #7a7068; margin-bottom: 10px; line-height: 1.5; }
+
+  /* Footer */
+  .footer {
+    margin-top: 40px;
+    padding-top: 14px;
+    border-top: 1px solid #e8e3db;
+    display: flex;
+    justify-content: space-between;
+    font-size: 9.5px;
+    color: #b0a898;
+  }
+
+  .print-btn {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    background: #1a1714;
+    color: #f5f2ec;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 20px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    cursor: pointer;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- COVER STRIP -->
+  <div class="cover-strip">
+    <div class="eyebrow">Leadership Needs Diagnostic · Confidential</div>
+    <h1>Leadership <em>Diagnostic</em> Report</h1>
+    <div class="subtitle">Competency assessment to guide program design</div>
+  </div>
+
+  <!-- META -->
+  <div class="meta-row">
+    <div class="meta-item">
+      <div class="meta-label">Organisation</div>
+      <div class="meta-value">${clientName}</div>
+    </div>
+    <div class="meta-item">
+      <div class="meta-label">Contact</div>
+      <div class="meta-value">${contactName}</div>
+    </div>
+    <div class="meta-item">
+      <div class="meta-label">Leader level</div>
+      <div class="meta-value">${leaderLevel}</div>
+    </div>
+    <div class="meta-item">
+      <div class="meta-label">Team size</div>
+      <div class="meta-value">${teamSize}</div>
+    </div>
+    <div class="meta-item">
+      <div class="meta-label">Date</div>
+      <div class="meta-value">${today}</div>
+    </div>
+    <div class="meta-item">
+      <div class="meta-label">Competencies rated</div>
+      <div class="meta-value">${ratedComps.length} of ${allCompsFixed.length}</div>
+    </div>
+  </div>
+
+  <!-- BODY -->
+  <div class="body">
+
+    <!-- Area score cards -->
+    <div class="section-heading">Area Overview</div>
+    <div class="score-cards">
+      <div class="score-card" style="border-left:3px solid #4a3d7a;">
+        <div class="score-card-label" style="color:#4a3d7a;">Self Management</div>
+        <div class="score-card-val">${areaScores.self ?? '—'}</div>
+        <div class="score-card-sub">avg score / 5</div>
+      </div>
+      <div class="score-card" style="border-left:3px solid #2a6b6b;">
+        <div class="score-card-label" style="color:#2a6b6b;">People Management</div>
+        <div class="score-card-val">${areaScores.people ?? '—'}</div>
+        <div class="score-card-sub">avg score / 5</div>
+      </div>
+      <div class="score-card" style="border-left:3px solid #b85c2a;">
+        <div class="score-card-label" style="color:#b85c2a;">Planning & Executing</div>
+        <div class="score-card-val">${areaScores.plan ?? '—'}</div>
+        <div class="score-card-sub">avg score / 5</div>
+      </div>
+    </div>
+
+    <!-- Radar -->
+    <div class="section-heading">Competency Radar</div>
+    ${radarImg ? `<div class="radar-wrap"><img src="${radarImg}" /></div>` : ''}
+    <div class="legend-row">
+      <div class="legend-item"><span class="legend-dot" style="background:#4a3d7a"></span>Self Management</div>
+      <div class="legend-item"><span class="legend-dot" style="background:#2a6b6b"></span>People Management</div>
+      <div class="legend-item"><span class="legend-dot" style="background:#b85c2a"></span>Planning &amp; Executing</div>
+    </div>
+
+    <!-- Two-col: breakdown + gaps -->
+    <div class="two-col">
+      <div>
+        <div class="section-heading">Competency Breakdown</div>
+        ${areaBreakdown || '<p style="font-size:12px;color:#a09890;font-style:italic;">No competencies rated.</p>'}
+      </div>
+      <div>
+        <div class="section-heading">Priority Development Gaps</div>
+        <div class="gap-intro">Competencies rated 1–2 (Critical gap / Needs work) that should anchor the program design conversation.</div>
+        <div>${gapTags || '<span style="font-size:11px;color:#a09890;font-style:italic;">No critical gaps identified.</span>'}</div>
+
+        <div style="margin-top:28px;">
+          <div class="section-heading">Rating Scale</div>
+          <table style="width:100%;border-collapse:collapse;">
+            ${[['1','Critical gap','#c0392b'],['2','Needs work','#d35400'],['3','Developing','#b8870a'],['4','Proficient','#27ae60'],['5','Strength','#1a7a4a']].map(([n,l,c]) => `
+            <tr style="border-bottom:1px solid #f0ede8;">
+              <td style="padding:5px 6px 5px 0;"><span style="display:inline-block;width:18px;height:18px;border-radius:50%;background:${c}18;border:1px solid ${c}55;text-align:center;line-height:18px;font-size:10px;font-weight:600;color:${c};">${n}</span></td>
+              <td style="padding:5px 0;font-size:11px;color:#1a1714;">${l}</td>
+            </tr>`).join('')}
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+      <span>Prepared by sales team · Confidential</span>
+      <span>Leadership Needs Diagnostic · ${today}</span>
+    </div>
+  </div>
+
+</div>
+<button class="print-btn no-print" onclick="window.print()">Print / Save PDF</button>
+</body>
+</html>`;
+
+  const win = window.open('', '_blank');
+  win.document.write(reportHTML);
+  win.document.close();
 }
 
 function resetAll() {
