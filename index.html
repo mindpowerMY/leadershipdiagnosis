@@ -17,6 +17,12 @@
       --good: #166534;
       --warn: #b45309;
       --bad: #b91c1c;
+      --self: rgba(37, 99, 235, 1);
+      --self-soft: rgba(37, 99, 235, 0.12);
+      --people: rgba(22, 163, 74, 1);
+      --people-soft: rgba(22, 163, 74, 0.12);
+      --execute: rgba(234, 88, 12, 1);
+      --execute-soft: rgba(234, 88, 12, 0.12);
       --shadow: 0 10px 25px rgba(0,0,0,0.06);
     }
 
@@ -30,7 +36,7 @@
     }
 
     .container {
-      max-width: 1180px;
+      max-width: 1240px;
       margin: 32px auto;
       padding: 0 20px 40px;
     }
@@ -189,14 +195,14 @@
       margin: 16px 0 20px;
     }
 
-    .summary-card, .panel {
+    .summary-card, .panel, .report-header {
       border: 1px solid var(--line);
       border-radius: 14px;
       padding: 16px;
       background: #fbfcfe;
     }
 
-    .summary-card h3, .panel h3 {
+    .summary-card h3, .panel h3, .report-header h3 {
       margin: 0 0 8px;
       font-size: 15px;
       color: var(--muted);
@@ -218,19 +224,45 @@
 
     .results-layout {
       display: grid;
-      grid-template-columns: 1.2fr 1fr;
+      grid-template-columns: 1.35fr 1fr;
       gap: 18px;
       margin-bottom: 18px;
     }
 
     .chart-wrap {
-      min-height: 380px;
+      min-height: 560px;
       position: relative;
     }
 
     .chart-wrap canvas {
       width: 100% !important;
-      height: 360px !important;
+      height: 540px !important;
+    }
+
+    .category-legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin: 0 0 12px;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .legend-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: #f8fafc;
+      border: 1px solid var(--line);
+    }
+
+    .swatch {
+      width: 10px;
+      height: 10px;
+      border-radius: 999px;
+      display: inline-block;
     }
 
     .competency-list {
@@ -249,21 +281,21 @@
     .competency-item p { margin: 0; color: #334155; }
 
     .word-cloud {
-      min-height: 280px;
-      display: flex;
-      flex-wrap: wrap;
-      gap: 12px 16px;
-      align-items: center;
-      align-content: flex-start;
-      padding: 8px 4px;
+      min-height: 330px;
+      position: relative;
+      overflow: hidden;
+      border-radius: 12px;
+      background: linear-gradient(180deg, #ffffff, #f8fafc);
+      border: 1px dashed var(--line);
     }
 
     .word-item {
+      position: absolute;
       display: inline-block;
-      line-height: 1.1;
-      padding: 4px 6px;
-      border-radius: 8px;
-      background: #f8fafc;
+      line-height: 1;
+      padding: 2px 4px;
+      white-space: nowrap;
+      user-select: none;
     }
 
     .overall-note {
@@ -276,8 +308,10 @@
 
     .print-only { display: none; }
 
-    @media (max-width: 900px) {
+    @media (max-width: 980px) {
       .results-layout { grid-template-columns: 1fr; }
+      .chart-wrap { min-height: 480px; }
+      .chart-wrap canvas { height: 460px !important; }
     }
 
     @media (max-width: 700px) {
@@ -296,6 +330,8 @@
         text-transform: uppercase;
       }
       .brand-mark { text-align: left; min-width: auto; }
+      .chart-wrap { min-height: 420px; }
+      .chart-wrap canvas { height: 400px !important; }
     }
 
     @media print {
@@ -309,11 +345,12 @@
         margin: 0;
         padding: 0;
       }
-      .panel, .summary-card, .overall-note {
+      .panel, .summary-card, .overall-note, .report-header {
         break-inside: avoid;
         box-shadow: none;
       }
       .print-only { display: block; margin-bottom: 12px; }
+      .word-cloud { min-height: 280px; }
     }
   </style>
 </head>
@@ -393,32 +430,41 @@
             <div style="color:#6b7280;">Generated diagnostic summary based on scored leadership competencies.</div>
           </div>
           <div class="brand-mark">
-            <div class="mp" style="color:#1d4ed8;">MP</div>
             <div class="tagline" style="color:#6b7280; opacity:1;">Leadership • Growth • Transformation</div>
           </div>
         </div>
       </div>
 
-      <div class="results-header">
-        <div>
-          <h2>Client Summary Report</h2>
-          <p>A summarised view of the strongest development priorities across Self Management, People Management, and Planning &amp; Executing.</p>
+      <div class="report-header">
+        <div class="brand-row" style="align-items:center; margin-bottom:8px;">
+          <div>
+            <div class="eyebrow" style="color:#1d4ed8; opacity:1;">MindPower</div>
+            <h2 style="margin:0 0 6px;">Client Summary Report</h2>
+            <p style="margin:0;">A summarised view of the strongest development priorities across Self Management, People Management, and Planning &amp; Executing.</p>
+          </div>
+          <div class="brand-mark no-print" style="align-self:flex-start;">
+            <div class="tagline" style="color:#6b7280; opacity:1;">Leadership • Growth • Transformation</div>
+          </div>
         </div>
+        <div class="summary-grid" id="headerMetaSummary" style="margin-bottom:0;"></div>
       </div>
 
-      <div class="summary-grid" id="clientMetaSummary"></div>
       <div class="summary-grid" id="areaSummary"></div>
 
       <div class="results-layout">
         <div class="panel">
-          <h3>Leadership Radar</h3>
+          <h3>Leadership Radar by Competency</h3>
+          <div class="category-legend">
+            <span class="legend-item"><span class="swatch" style="background:var(--self);"></span>Self Management</span>
+            <span class="legend-item"><span class="swatch" style="background:var(--people);"></span>People Management</span>
+            <span class="legend-item"><span class="swatch" style="background:var(--execute);"></span>Planning &amp; Executing</span>
+          </div>
           <div class="chart-wrap">
             <canvas id="radarChart"></canvas>
           </div>
         </div>
         <div class="panel">
           <h3>Weighted Competency Word Cloud</h3>
-          <h4>The larger the fonts, the more attention is needed on that competency.</h4>
           <div id="wordCloud" class="word-cloud"></div>
         </div>
       </div>
@@ -460,6 +506,12 @@
       ]
     };
 
+    const areaColors = {
+      "Self Management": { solid: 'rgba(37, 99, 235, 1)', soft: 'rgba(37, 99, 235, 0.12)' },
+      "People Management": { solid: 'rgba(22, 163, 74, 1)', soft: 'rgba(22, 163, 74, 0.12)' },
+      "Planning & Executing": { solid: 'rgba(234, 88, 12, 1)', soft: 'rgba(234, 88, 12, 0.12)' }
+    };
+
     let radarInstance = null;
 
     function slug(text) {
@@ -473,6 +525,15 @@
         .replace(/>/g, '&gt;')
         .replace(/"/g, '&quot;')
         .replace(/'/g, '&#39;');
+    }
+
+    function shuffleArray(array) {
+      const arr = [...array];
+      for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+      return arr;
     }
 
     function renderForm() {
@@ -540,10 +601,12 @@
     function collectScores() {
       const allItems = [];
       const areaAverages = [];
+      const radarGroups = [];
 
       Object.entries(competencies).forEach(([area, items]) => {
         let total = 0;
         let count = 0;
+        const areaItems = [];
 
         items.forEach((item, index) => {
           const el = document.getElementById(`${slug(area)}-${index}`);
@@ -553,19 +616,22 @@
           const score = Number(value);
           total += score;
           count += 1;
-          allItems.push({ area, name: item.name, score, summary: item.summary });
+          const row = { area, name: item.name, score, summary: item.summary };
+          allItems.push(row);
+          areaItems.push(row);
         });
 
         if (count > 0) {
           areaAverages.push({ area, avg: total / count, label: getAreaLabel(total / count) });
+          radarGroups.push({ area, items: areaItems });
         }
       });
 
-      return { allItems, areaAverages, clientMeta: getClientMeta() };
+      return { allItems, areaAverages, clientMeta: getClientMeta(), radarGroups };
     }
 
-    function renderClientMetaSummary(clientMeta) {
-      const meta = document.getElementById('clientMetaSummary');
+    function renderHeaderMetaSummary(clientMeta) {
+      const meta = document.getElementById('headerMetaSummary');
       meta.innerHTML = `
         <div class="summary-card">
           <h3>Client Name</h3>
@@ -593,29 +659,43 @@
       `).join('');
     }
 
-    function renderRadarChart(areaAverages) {
-      const labels = ['Self Management', 'People Management', 'Planning & Executing'];
-      const map = Object.fromEntries(areaAverages.map(a => [a.area, a.avg]));
-      const data = labels.map(label => map[label] || 0);
+    function renderRadarChart(radarGroups) {
+      const allLabels = [];
+      const allScores = [];
+      const pointColors = [];
+      const pointBorders = [];
+      const segmentBg = [];
+
+      radarGroups.forEach(group => {
+        group.items.forEach(item => {
+          allLabels.push(item.name);
+          allScores.push(item.score);
+          pointColors.push(areaColors[group.area].solid);
+          pointBorders.push(areaColors[group.area].solid);
+          segmentBg.push(areaColors[group.area].soft);
+        });
+      });
+
       const canvas = document.getElementById('radarChart');
       const ctx = canvas.getContext('2d');
-
       if (radarInstance) radarInstance.destroy();
 
       radarInstance = new Chart(ctx, {
         type: 'radar',
         data: {
-          labels,
+          labels: allLabels,
           datasets: [{
-            label: 'Average Capability Score',
-            data,
+            label: 'Leadership Capability Profile',
+            data: allScores,
             fill: true,
-            backgroundColor: 'rgba(29, 78, 216, 0.18)',
-            borderColor: 'rgba(29, 78, 216, 1)',
-            pointBackgroundColor: 'rgba(29, 78, 216, 1)',
-            pointBorderColor: '#fff',
-            pointHoverBackgroundColor: '#fff',
-            pointHoverBorderColor: 'rgba(29, 78, 216, 1)',
+            backgroundColor: 'rgba(37, 99, 235, 0.08)',
+            borderColor: 'rgba(30, 41, 59, 0.7)',
+            pointBackgroundColor: pointColors,
+            pointBorderColor: '#ffffff',
+            pointHoverBackgroundColor: pointColors,
+            pointHoverBorderColor: '#ffffff',
+            pointRadius: 4,
+            pointHoverRadius: 5,
             borderWidth: 2
           }]
         },
@@ -627,14 +707,55 @@
             r: {
               min: 0,
               max: 3,
-              ticks: { stepSize: 1 },
-              pointLabels: { font: { size: 13 } }
+              ticks: { stepSize: 1, backdropColor: 'transparent' },
+              angleLines: { color: 'rgba(148, 163, 184, 0.25)' },
+              grid: { color: 'rgba(148, 163, 184, 0.25)' },
+              pointLabels: {
+                font: { size: 10 },
+                color: '#475569'
+              }
             }
           },
           plugins: {
-            legend: { display: false }
+            legend: { display: false },
+            tooltip: {
+              callbacks: {
+                label: function(context) {
+                  return `${context.label}: ${context.raw}`;
+                }
+              }
+            }
+          },
+          elements: {
+            line: { tension: 0.18 }
           }
-        }
+        },
+        plugins: [{
+          id: 'categoryBands',
+          beforeDatasetsDraw(chart) {
+            const scale = chart.scales.r;
+            const ctx = chart.ctx;
+            let startIndex = 0;
+            radarGroups.forEach(group => {
+              const count = group.items.length;
+              if (!count) return;
+              const color = areaColors[group.area].soft;
+              ctx.save();
+              ctx.beginPath();
+              for (let i = 0; i < count; i++) {
+                const idx = startIndex + i;
+                const pt = scale.getPointPositionForValue(idx, scale.max);
+                if (i === 0) ctx.moveTo(pt.x, pt.y);
+                else ctx.lineTo(pt.x, pt.y);
+              }
+              ctx.closePath();
+              ctx.fillStyle = color;
+              ctx.fill();
+              ctx.restore();
+              startIndex += count;
+            });
+          }
+        }]
       });
     }
 
@@ -650,14 +771,54 @@
 
     function renderWordCloud(items) {
       const wordCloud = document.getElementById('wordCloud');
-      const sorted = [...items].sort((a, b) => a.score - b.score || a.name.localeCompare(b.name));
-      wordCloud.innerHTML = sorted.map(item => {
+      wordCloud.innerHTML = '';
+
+      const shuffled = shuffleArray(items);
+      const palette = shuffled.map(item => ({
+        text: item.name,
+        score: item.score,
+        area: item.area,
+        color: areaColors[item.area].solid
+      }));
+
+      let x = 14;
+      let y = 16;
+      const maxWidth = Math.max(260, wordCloud.clientWidth - 20);
+      const lineHeightBase = 42;
+      let currentLineHeight = lineHeightBase;
+
+      palette.forEach((item, index) => {
         const weakness = 4 - item.score;
         const fontSize = 14 + (weakness * 8);
-        const opacity = 0.5 + (weakness * 0.15);
         const weight = item.score === 1 ? 700 : item.score === 2 ? 600 : 500;
-        return `<span class="word-item" title="${escapeHtml(item.area)} | Score: ${item.score}" style="font-size:${fontSize}px; opacity:${opacity}; font-weight:${weight};">${escapeHtml(item.name)}</span>`;
-      }).join('');
+        const rotation = index % 6 === 0 ? -6 : index % 5 === 0 ? 6 : 0;
+        const estimatedWidth = item.text.length * (fontSize * 0.58) + 18;
+        const estimatedHeight = fontSize * 1.35;
+
+        if (x + estimatedWidth > maxWidth) {
+          x = 14;
+          y += currentLineHeight;
+          currentLineHeight = lineHeightBase;
+        }
+
+        currentLineHeight = Math.max(currentLineHeight, estimatedHeight + 10);
+
+        const span = document.createElement('span');
+        span.className = 'word-item';
+        span.textContent = item.text;
+        span.title = `${item.area} | Score: ${item.score}`;
+        span.style.left = `${x}px`;
+        span.style.top = `${y}px`;
+        span.style.fontSize = `${fontSize}px`;
+        span.style.fontWeight = weight;
+        span.style.color = item.color;
+        span.style.transform = `rotate(${rotation}deg)`;
+        wordCloud.appendChild(span);
+
+        x += estimatedWidth + 10;
+      });
+
+      wordCloud.style.minHeight = `${Math.max(330, y + currentLineHeight + 20)}px`;
     }
 
     function renderOverallNote(areaAverages, weakest) {
@@ -680,7 +841,7 @@
     }
 
     function generateResults() {
-      const { allItems, areaAverages, clientMeta } = collectScores();
+      const { allItems, areaAverages, clientMeta, radarGroups } = collectScores();
       if (allItems.length < 5) {
         alert('Please score at least 5 competencies before generating the client summary.');
         return false;
@@ -689,16 +850,17 @@
       allItems.sort((a, b) => a.score - b.score || a.area.localeCompare(b.area));
       const weakest = allItems.slice(0, Math.min(5, allItems.length));
 
-      renderClientMetaSummary(clientMeta);
+      renderHeaderMetaSummary(clientMeta);
       renderAreaSummary(areaAverages);
-      renderRadarChart(areaAverages);
+      renderRadarChart(radarGroups);
       renderTopCompetencies(weakest);
-      renderWordCloud(allItems);
       renderOverallNote(areaAverages, weakest);
 
       const page = document.getElementById('resultsPage');
       page.classList.add('visible');
       page.scrollIntoView({ behavior: 'smooth' });
+
+      setTimeout(() => renderWordCloud(allItems), 50);
       return true;
     }
 
@@ -707,8 +869,11 @@
       if (!page.classList.contains('visible')) {
         const ok = generateResults();
         if (!ok) return;
+      } else {
+        const { allItems } = collectScores();
+        setTimeout(() => renderWordCloud(allItems), 50);
       }
-      setTimeout(() => window.print(), 200);
+      setTimeout(() => window.print(), 220);
     }
 
     function resetForm() {
@@ -722,7 +887,7 @@
         select.value = '';
       });
 
-      document.getElementById('clientMetaSummary').innerHTML = '';
+      document.getElementById('headerMetaSummary').innerHTML = '';
       document.getElementById('areaSummary').innerHTML = '';
       document.getElementById('topCompetencies').innerHTML = '';
       document.getElementById('wordCloud').innerHTML = '';
@@ -748,6 +913,13 @@
     document.getElementById('generateBtn').addEventListener('click', generateResults);
     document.getElementById('resetBtn').addEventListener('click', resetForm);
     document.getElementById('printBtn').addEventListener('click', printReport);
+    window.addEventListener('resize', () => {
+      const page = document.getElementById('resultsPage');
+      if (page.classList.contains('visible')) {
+        const { allItems } = collectScores();
+        renderWordCloud(allItems);
+      }
+    });
   </script>
 </body>
 </html>
