@@ -735,17 +735,163 @@
   .modal-footer .btn-secondary { width: auto; padding: 0.6rem 1.2rem; }
   .modal-footer .btn-primary { width: auto; padding: 0.6rem 1.4rem; }
 
+  /* ── MOBILE TAB BAR ── */
+  .mobile-bar {
+    display: none;
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    background: var(--ink);
+    z-index: 50;
+    padding: 0 0 env(safe-area-inset-bottom);
+  }
+
+  .mobile-tabs {
+    display: flex;
+    align-items: stretch;
+  }
+
+  .mobile-tab {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    padding: 10px 4px 8px;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.65rem;
+    font-weight: 400;
+    color: #6b6460;
+    transition: color 0.15s, background 0.15s;
+    border-top: 2px solid transparent;
+    line-height: 1.2;
+  }
+
+  .mobile-tab .tab-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    margin-bottom: 1px;
+  }
+
+  .mobile-tab.active { color: var(--paper); border-top-color: var(--warm-mid); }
+  .mobile-tab.active.self { border-top-color: #9b8fd4; }
+  .mobile-tab.active.people { border-top-color: #5ab8a8; }
+  .mobile-tab.active.plan { border-top-color: #d48060; }
+
+  .mobile-tab-summary {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    padding: 10px 4px 8px;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.65rem;
+    color: #c9b99a;
+    font-weight: 500;
+    border-top: 2px solid #c9b99a33;
+    line-height: 1.2;
+  }
+
+  /* ── MOBILE SCORE STRIP ── */
+  .mobile-score-strip {
+    display: none;
+    background: var(--cream);
+    border-bottom: 1px solid var(--border);
+    padding: 0.6rem 1rem;
+    gap: 0;
+  }
+
+  .mobile-score-strip .mss-inner {
+    display: flex;
+    gap: 0;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .mobile-score-strip .mss-inner::-webkit-scrollbar { display: none; }
+
+  .mss-item {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 14px 4px 0;
+    font-size: 0.75rem;
+  }
+
+  .mss-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+  .mss-label { color: var(--muted); }
+  .mss-val { font-weight: 500; color: var(--ink); }
+
+  .mss-divider { width: 1px; background: var(--border); margin: 0 8px 0 0; align-self: stretch; flex-shrink: 0; }
+
+  .mss-progress { display: flex; align-items: center; gap: 8px; padding-left: 4px; flex-shrink: 0; }
+  .mss-prog-bar { width: 60px; height: 4px; background: var(--border); border-radius: 4px; overflow: hidden; }
+  .mss-prog-fill { height: 100%; background: var(--ink); border-radius: 4px; transition: width 0.4s; }
+  .mss-prog-pct { font-size: 0.72rem; color: var(--muted); white-space: nowrap; }
+
   @media print {
-    header, .left-nav, .right-panel { display: none !important; }
+    header, .left-nav, .right-panel, .mobile-bar, .mobile-score-strip { display: none !important; }
     .modal-overlay { display: flex !important; position: static; background: none; }
     .modal { box-shadow: none; max-height: none; }
     .modal-footer, .modal-close { display: none !important; }
     body { background: white; }
   }
 
-  @media (max-width: 900px) {
-    .layout { grid-template-columns: 1fr; }
+  @media (max-width: 768px) {
+    /* Header compact */
+    header { padding: 1rem 1.1rem; }
+    .header-left h1 { font-size: 1.25rem; }
+    .header-left p { display: none; }
+    .header-right { display: none; }
+
+    /* Layout single column, no sidebars */
+    .layout { grid-template-columns: 1fr; min-height: 0; }
     .left-nav, .right-panel { display: none; }
+
+    /* Main content padding + bottom padding for tab bar */
+    .main { padding: 1rem 0.9rem 6rem; }
+
+    /* Area header tighter */
+    .area-header { margin-bottom: 1rem; }
+    .area-header h2 { font-size: 1.25rem; }
+
+    /* Comp cards full width, slightly tighter */
+    .comp-top { padding: 0.85rem 0.9rem 0.75rem; }
+    .comp-rating { padding: 0.3rem 0.9rem; flex-wrap: wrap; gap: 0.3rem; }
+    .probe-panel { padding: 0.9rem; }
+    .probe-list li { font-size: 0.82rem; }
+
+    /* Show mobile tab bar and score strip */
+    .mobile-bar { display: block; }
+    .mobile-score-strip { display: flex; flex-direction: column; }
+
+    /* Modal full-screen on mobile */
+    .modal-overlay { padding: 0; align-items: flex-end; }
+    .modal {
+      border-radius: 16px 16px 0 0;
+      max-height: 92vh;
+      width: 100%;
+    }
+    .modal-header { padding: 1.1rem 1.25rem 0.75rem; }
+    .modal-body { padding: 1rem 1.25rem 1.5rem; }
+    .modal-footer { padding: 0.75rem 1.25rem 1rem; }
+    .client-fields { grid-template-columns: 1fr; }
+    .field-group.full { grid-column: 1; }
+    .modal-footer .btn-secondary, .modal-footer .btn-primary { flex: 1; }
+  }
+
+  @media (max-width: 900px) and (min-width: 769px) {
+    .layout { grid-template-columns: 220px 1fr; }
+    .right-panel { display: none; }
   }
 </style>
 </head>
@@ -760,6 +906,34 @@
     <span class="pill">Sales Tool</span>
   </div>
 </header>
+
+<!-- MOBILE SCORE STRIP -->
+<div class="mobile-score-strip" id="mobile-score-strip">
+  <div class="mss-inner">
+    <div class="mss-item">
+      <span class="mss-dot" style="background:#4a3d7a"></span>
+      <span class="mss-label">Self</span>
+      <span class="mss-val" id="m-score-self">—</span>
+    </div>
+    <div class="mss-divider"></div>
+    <div class="mss-item">
+      <span class="mss-dot" style="background:#2a6b6b"></span>
+      <span class="mss-label">People</span>
+      <span class="mss-val" id="m-score-people">—</span>
+    </div>
+    <div class="mss-divider"></div>
+    <div class="mss-item">
+      <span class="mss-dot" style="background:#b85c2a"></span>
+      <span class="mss-label">Planning</span>
+      <span class="mss-val" id="m-score-plan">—</span>
+    </div>
+    <div class="mss-divider"></div>
+    <div class="mss-progress">
+      <div class="mss-prog-bar"><div class="mss-prog-fill" id="m-prog-fill" style="width:0%"></div></div>
+      <span class="mss-prog-pct" id="m-prog-pct">0% done</span>
+    </div>
+  </div>
+</div>
 
 <div class="layout">
 
@@ -956,6 +1130,10 @@ function switchArea(area) {
   currentArea = area;
   document.querySelectorAll('.area-btn').forEach(b => b.classList.remove('active'));
   document.querySelector(`.area-btn.${area}`).classList.add('active');
+  // sync mobile tabs
+  document.querySelectorAll('.mobile-tab').forEach(b => b.classList.remove('active'));
+  const mtab = document.getElementById(`mtab-${area}`);
+  if (mtab) mtab.classList.add('active');
   renderMain();
 }
 
@@ -1078,22 +1256,40 @@ function updateSidebar() {
   const gaps = allComps.filter(c => ratings[c.id] && ratings[c.id] <= 2)
     .sort((a, b) => ratings[a.id] - ratings[b.id]);
 
+  // Concerns box (desktop right panel)
   const box = document.getElementById('concerns-box');
-  if (gaps.length === 0) {
-    box.innerHTML = '<div class="empty-msg">No critical gaps yet — rate some competencies</div>';
-  } else {
-    const dotMap = { self: 'var(--purple)', people: 'var(--teal)', plan: 'var(--accent)' };
-    box.innerHTML = gaps.slice(0, 6).map(c => {
-      const areaKey = Object.keys(DATA).find(k => DATA[k].competencies.some(x => x.id === c.id));
-      return `
-        <div class="concern-item">
-          <span class="concern-dot" style="background:${dotMap[areaKey]}"></span>
-          <span style="font-size:0.82rem">${c.name}</span>
-          <span class="concern-score">${'★'.repeat(ratings[c.id])}</span>
-        </div>
-      `;
-    }).join('');
+  if (box) {
+    if (gaps.length === 0) {
+      box.innerHTML = '<div class="empty-msg">No critical gaps yet — rate some competencies</div>';
+    } else {
+      const dotMap = { self: 'var(--purple)', people: 'var(--teal)', plan: 'var(--accent)' };
+      box.innerHTML = gaps.slice(0, 6).map(c => {
+        const areaKey = Object.keys(DATA).find(k => DATA[k].competencies.some(x => x.id === c.id));
+        return `
+          <div class="concern-item">
+            <span class="concern-dot" style="background:${dotMap[areaKey]}"></span>
+            <span style="font-size:0.82rem">${c.name}</span>
+            <span class="concern-score">${'★'.repeat(ratings[c.id])}</span>
+          </div>
+        `;
+      }).join('');
+    }
   }
+
+  // Sync mobile score strip
+  const areaScores = {};
+  Object.keys(DATA).forEach(k => {
+    const comps = DATA[k].competencies.filter(c => ratings[c.id]);
+    areaScores[k] = comps.length ? (comps.reduce((s, c) => s + ratings[c.id], 0) / comps.length).toFixed(1) : null;
+  });
+  ['self','people','plan'].forEach(k => {
+    const el = document.getElementById(`m-score-${k}`);
+    if (el) el.textContent = areaScores[k] ? areaScores[k] + ' / 5' : '—';
+  });
+  const mFill = document.getElementById('m-prog-fill');
+  const mPct = document.getElementById('m-prog-pct');
+  if (mFill) mFill.style.width = pct + '%';
+  if (mPct) mPct.textContent = pct + '% done';
 }
 
 function openSummary() {
@@ -1669,5 +1865,28 @@ function resetAll() {
 // Init
 renderMain();
 </script>
+
+<!-- MOBILE TAB BAR -->
+<div class="mobile-bar">
+  <div class="mobile-tabs">
+    <button class="mobile-tab self active" id="mtab-self" onclick="switchArea('self')">
+      <span class="tab-dot" style="background:#9b8fd4"></span>
+      Self Mgmt
+    </button>
+    <button class="mobile-tab people" id="mtab-people" onclick="switchArea('people')">
+      <span class="tab-dot" style="background:#5ab8a8"></span>
+      People
+    </button>
+    <button class="mobile-tab plan" id="mtab-plan" onclick="switchArea('plan')">
+      <span class="tab-dot" style="background:#d48060"></span>
+      Planning
+    </button>
+    <button class="mobile-tab-summary" onclick="openSummary()">
+      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M9 12h6M9 16h6M5 20h14a2 2 0 002-2V6l-4-4H5a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
+      Summary
+    </button>
+  </div>
+</div>
+
 </body>
 </html>
