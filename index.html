@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Leadership Capability Diagnostic</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    :root {
+      --bg: #f7f8fb;
+      --card: #ffffff;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --line: #dbe1ea;
+      --accent: #1d4ed8;
+      --accent-soft: #e8f0ff;
+      --good: #166534;
+      --warn: #b45309;
+      --bad: #b91c1c;
+      --shadow: 0 10px 25px rgba(0,0,0,0.06);
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.45;
+    }
+
+    .container {
+      max-width: 1180px;
+      margin: 32px auto;
+      padding: 0 20px 40px;
+    }
+
+    .header {
+      background: linear-gradient(135deg, #1d4ed8, #2563eb);
+      color: white;
+      border-radius: 18px;
+      padding: 28px;
+      box-shadow: var(--shadow);
+      margin-bottom: 24px;
+    }
+
+    .header h1 {
+      margin: 0 0 8px;
+      font-size: 30px;
+    }
+
+    .header p { margin: 0; opacity: 0.95; }
+
+    .instructions, .section, .results-page {
+      background: var(--card);
+      border-radius: 18px;
+      padding: 20px;
+      box-shadow: var(--shadow);
+      margin-bottom: 22px;
+    }
+
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 10px;
+      font-size: 14px;
+      color: var(--muted);
+    }
+
+    .pill {
+      background: #f3f4f6;
+      border: 1px solid var(--line);
+      padding: 8px 12px;
+      border-radius: 999px;
+    }
+
+    .section h2, .results-page h2 { margin: 0 0 6px; font-size: 22px; }
+    .section p, .results-page p { margin: 0 0 16px; color: var(--muted); }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1px solid var(--line);
+    }
+
+    th, td {
+      padding: 12px 10px;
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+      vertical-align: middle;
+    }
+
+    th { background: #f9fafb; font-size: 14px; }
+    tr:last-child td { border-bottom: none; }
+
+    .score-select {
+      width: 100%;
+      max-width: 140px;
+      padding: 8px 10px;
+      border-radius: 10px;
+      border: 1px solid #cbd5e1;
+      background: white;
+      font-size: 14px;
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin: 28px 0 16px;
+    }
+
+    button {
+      border: none;
+      border-radius: 12px;
+      padding: 12px 18px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .primary { background: var(--accent); color: white; }
+    .secondary { background: #e5e7eb; color: var(--text); }
+    .ghost { background: #eff6ff; color: var(--accent); }
+
+    .results-page { display: none; }
+    .results-page.visible { display: block; }
+
+    .results-header {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: flex-start;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+    }
+
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 14px;
+      margin: 16px 0 20px;
+    }
+
+    .summary-card, .panel {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 16px;
+      background: #fbfcfe;
+    }
+
+    .summary-card h3, .panel h3 {
+      margin: 0 0 8px;
+      font-size: 15px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+
+    .score-number {
+      font-size: 28px;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .results-layout {
+      display: grid;
+      grid-template-columns: 1.2fr 1fr;
+      gap: 18px;
+      margin-bottom: 18px;
+    }
+
+    .chart-wrap {
+      min-height: 380px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .chart-wrap canvas {
+      max-width: 100%;
+      max-height: 360px;
+    }
+
+    .competency-list {
+      display: grid;
+      gap: 12px;
+    }
+
+    .competency-item {
+      border-left: 4px solid var(--accent);
+      padding: 12px 14px;
+      background: var(--accent-soft);
+      border-radius: 10px;
+    }
+
+    .competency-item h4 { margin: 0 0 6px; font-size: 16px; }
+    .competency-item p { margin: 0; color: #334155; }
+
+    .word-cloud {
+      min-height: 280px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px 16px;
+      align-items: center;
+      align-content: flex-start;
+      padding: 8px 4px;
+    }
+
+    .word-item {
+      display: inline-block;
+      line-height: 1;
+      padding: 4px 6px;
+      border-radius: 8px;
+      background: #f8fafc;
+    }
+
+    .overall-note {
+      margin-top: 18px;
+      padding: 14px 16px;
+      border-radius: 12px;
+      background: #f8fafc;
+      border: 1px solid var(--line);
+    }
+
+    .print-only { display: none; }
+
+    @media (max-width: 900px) {
+      .results-layout { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 700px) {
+      .header h1 { font-size: 24px; }
+      table, thead, tbody, th, td, tr { display: block; }
+      thead { display: none; }
+      tr { border-bottom: 1px solid var(--line); padding: 10px 0; }
+      td { border: none; padding: 8px 0; }
+      td::before {
+        content: attr(data-label);
+        display: block;
+        font-size: 12px;
+        font-weight: 700;
+        color: var(--muted);
+        margin-bottom: 4px;
+        text-transform: uppercase;
+      }
+    }
+
+    @media print {
+      body { background: white; }
+      .container { max-width: 100%; margin: 0; padding: 0; }
+      .header, .instructions, #formArea, .actions { display: none !important; }
+      .results-page {
+        display: block !important;
+        box-shadow: none;
+        border-radius: 0;
+        margin: 0;
+        padding: 0;
+      }
+      .panel, .summary-card, .overall-note {
+        break-inside: avoid;
+        box-shadow: none;
+      }
+      .print-only { display: block; margin-bottom: 12px; }
+      .no-print { display: none !important; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header no-print">
+      <div style="display:flex; justify-content:space-between; gap:20px; align-items:flex-start; flex-wrap:wrap;">
+        <div>
+          <div style="font-size:13px; letter-spacing:0.18em; text-transform:uppercase; opacity:0.9; margin-bottom:8px; font-weight:700;">MindPower</div>
+          <h1>Leadership Capability Diagnostic</h1>
+          <p>Rate each competency from 1 to 3. <br>A separate client summary page will be generated with a radar chart, prioritised competency summary, and a weighted word cloud.</p>
+        </div>
+        <div style="min-width:180px; text-align:right; align-self:center;">
+          <div style="font-size:13px; opacity:0.92; margin-top:6px;">Leadership • Growth • Transformation</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section no-print" id="clientInfoSection">
+      <h2>Client Information</h2>
+      <p>Complete these details so they appear in the client summary report and print view.</p>
+      <table>
+        <tbody>
+          <tr>
+            <td data-label="Field" style="width:240px;"><strong>Client Name</strong></td>
+            <td data-label="Input"><input id="clientName" type="text" class="score-select" style="max-width:100%;" placeholder="Enter client name" /></td>
+          </tr>
+          <tr>
+            <td data-label="Field"><strong>Department</strong></td>
+            <td data-label="Input"><input id="department" type="text" class="score-select" style="max-width:100%;" placeholder="Enter department" /></td>
+          </tr>
+          <tr>
+            <td data-label="Field"><strong>Target Audience</strong></td>
+            <td data-label="Input">
+              <select id="targetAudience" class="score-select" style="max-width:100%;">
+                <option value="">Select target audience</option>
+                <option value="Senior Leaders">Senior Leaders</option>
+                <option value="New Leaders">New Leaders</option>
+                <option value="High Potentials">High Potentials</option>
+                <option value="Executives">Executives</option>
+                <option value="Non Executives">Non Executives</option>
+                <option value="Others">Others</option>
+              </select>
+            </td>
+          </tr>
+          <tr id="otherAudienceRow" style="display:none;">
+            <td data-label="Field"><strong>Other Audience</strong></td>
+            <td data-label="Input"><input id="otherAudience" type="text" class="score-select" style="max-width:100%;" placeholder="Specify other audience" /></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="instructions no-print">
+      <strong>Scoring Guide</strong>
+      <div class="legend">
+        <div class="pill">1 = Lacking</div>
+        <div class="pill">2 = Developing</div>
+        <div class="pill">3 = Strong</div>
+      </div>
+    </div>
+
+    <div id="formArea" class="no-print"></div>
+
+    <div class="actions no-print">
+      <button class="primary" onclick="generateResults()">Generate Client Summary</button>
+      <button class="secondary" onclick="resetForm()">Reset</button>
+      <button class="ghost" onclick="printReport()">Client Summary Report Print View</button>
+    </div>
+
+    <div class="results-page" id="resultsPage">
+      <div class="print-only">
+        <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:20px; margin-bottom:12px;">
+          <div>
+            <div style="font-size:12px; letter-spacing:0.18em; text-transform:uppercase; color:#1d4ed8; font-weight:700; margin-bottom:6px;">MindPower</div>
+            <h1 style="margin:0 0 6px; font-size:24px;">Leadership Client Summary Report</h1>
+            <div style="color:#6b7280;">Generated diagnostic summary based on scored leadership competencies.</div>
+          </div>
+          <div style="text-align:right;">
+            <div style="font-size:28px; font-weight:700; color:#1d4ed8; line-height:1;">MP</div>
+            <div style="font-size:12px; color:#6b7280; margin-top:4px;">Leadership • Growth • Transformation</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="results-header">
+        <div>
+          <h2>Client Summary Report</h2>
+          <p>A summarised view of the strongest development priorities across Self Management, People Management, and Planning & Executing.</p>
+        </div>
+      </div>
+
+      <div class="summary-grid" id="areaSummary"></div>
+
+      <div class="results-layout">
+        <div class="panel">
+          <h3>Leadership Radar</h3>
+          <div class="chart-wrap">
+            <canvas id="radarChart"></canvas>
+          </div>
+        </div>
+        <div class="panel">
+          <h3>Weighted Competency Word Cloud</h3>
+          <div id="wordCloud" class="word-cloud"></div>
+        </div>
+      </div>
+
+      <div class="panel" style="margin-bottom:18px;">
+        <h3>Top Development Priorities</h3>
+        <div class="competency-list" id="topCompetencies"></div>
+      </div>
+
+      <div class="overall-note" id="overallNote"></div>
+    </div>
+  </div>
+
+  <script>
+    const competencies = {
+      "Self Management": [
+        { name: "Self-awareness", summary: "Needs stronger awareness of personal strengths, blind spots, and behavioural impact on others." },
+        { name: "Emotional regulation", summary: "Would benefit from managing pressure, emotions, and reactions more effectively in demanding situations." },
+        { name: "Accountability & ownership", summary: "May need to strengthen ownership, follow-through, and consistency in taking responsibility." },
+        { name: "Resilience", summary: "Could improve ability to recover from setbacks and stay constructive under adversity." },
+        { name: "Adaptability", summary: "May need greater agility in responding to change, ambiguity, and shifting priorities." },
+        { name: "Time & priority management", summary: "Would benefit from better focus, prioritisation, and management of competing demands." }
+      ],
+      "People Management": [
+        { name: "Delegation & empowerment", summary: "May need to let go more effectively, assign ownership clearly, and empower team members to deliver." },
+        { name: "Coaching & developing others", summary: "Could strengthen ability to grow people through guidance, support, and developmental conversations." },
+        { name: "Giving feedback", summary: "Would benefit from providing clearer, more constructive, and more timely feedback." },
+        { name: "Communication & alignment", summary: "May need to communicate expectations, direction, and priorities with greater clarity and consistency." },
+        { name: "Conflict management", summary: "Could improve confidence and skill in addressing tensions and resolving issues constructively." },
+        { name: "Trust building", summary: "May need to create stronger trust, openness, and psychological safety within the team." }
+      ],
+      "Planning & Executing": [
+        { name: "Strategic thinking", summary: "Would benefit from thinking beyond immediate issues and linking actions to longer-term direction." },
+        { name: "Business acumen", summary: "May need a stronger grasp of commercial drivers, operational realities, and organisational impact." },
+        { name: "Goal setting & prioritisation", summary: "Could improve in translating direction into clear goals, priorities, and focus areas." },
+        { name: "Decision-making", summary: "May need to make clearer, timelier, and more confident decisions using sound judgement." },
+        { name: "Problem-solving", summary: "Would benefit from more structured thinking in diagnosing issues and identifying effective solutions." },
+        { name: "Execution discipline", summary: "Could strengthen follow-through, accountability, and consistency in turning plans into results." }
+      ]
+    };
+
+    let radarInstance = null;
+
+    function slug(text) {
+      return text.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+    }
+
+    function renderForm() {
+      const formArea = document.getElementById('formArea');
+      formArea.innerHTML = '';
+
+      Object.entries(competencies).forEach(([area, items]) => {
+        const section = document.createElement('div');
+        section.className = 'section';
+        section.innerHTML = `
+          <h2>${area}</h2>
+          <p>Rate the current leadership capability in this area.</p>
+          <table>
+            <thead>
+              <tr>
+                <th>Competency</th>
+                <th style="width:160px;">Score</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${items.map((item, index) => `
+                <tr>
+                  <td data-label="Competency">${item.name}</td>
+                  <td data-label="Score">
+                    <select class="score-select" id="${slug(area)}-${index}">
+                      <option value="">Select</option>
+                      <option value="1">1 - Lacking</option>
+                      <option value="2">2 - Developing</option>
+                      <option value="3">3 - Strong</option>
+                    </select>
+                  </td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        `;
+        formArea.appendChild(section);
+      });
+    }
+
+    function getAreaLabel(avg) {
+      if (avg < 1.7) return 'Priority Gap';
+      if (avg < 2.4) return 'Developing';
+      return 'Relative Strength';
+    }
+
+    function getAreaColorClass(avg) {
+      if (avg < 1.7) return 'var(--bad)';
+      if (avg < 2.4) return 'var(--warn)';
+      return 'var(--good)';
+    }
+
+    function collectScores() {
+      const clientName = document.getElementById('clientName').value.trim();
+      const department = document.getElementById('department').value.trim();
+      const targetAudienceRaw = document.getElementById('targetAudience').value;
+      const otherAudience = document.getElementById('otherAudience').value.trim();
+      const targetAudience = targetAudienceRaw === 'Others' && otherAudience ? otherAudience : targetAudienceRaw;
+
+      const allItems = [];
+      const areaAverages = [];
+
+      for (const [area, items] of Object.entries(competencies)) {
+        let total = 0;
+        let count = 0;
+
+        items.forEach((item, index) => {
+          const value = document.getElementById(`${slug(area)}-${index}`).value;
+          if (value === '') return;
+          const score = Number(value);
+          total += score;
+          count += 1;
+          allItems.push({ area, name: item.name, score, summary: item.summary });
+        });
+
+        if (count > 0) {
+          areaAverages.push({ area, avg: total / count, label: getAreaLabel(total / count) });
+        }
+      }
+
+      return { allItems, areaAverages, clientMeta: { clientName, department, targetAudience } };
+    }
+
+    function generateResults() {
+      const { allItems, areaAverages, clientMeta } = collectScores();
+      if (allItems.length < 5) {
+        alert('Please score at least 5 competencies before generating the client summary.');
+        return;
+      }
+
+      allItems.sort((a, b) => a.score - b.score || a.area.localeCompare(b.area));
+      const weakest = allItems.slice(0, Math.min(5, allItems.length));
+
+      renderClientMetaSummary(clientMeta);
+      renderAreaSummary(areaAverages);
+      renderRadarChart(areaAverages);
+      renderTopCompetencies(weakest);
+      renderWordCloud(allItems);
+      renderOverallNote(areaAverages, weakest);
+
+      const page = document.getElementById('resultsPage');
+      page.classList.add('visible');
+      page.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function renderClientMetaSummary(clientMeta) {
+      const meta = document.getElementById('clientMetaSummary');
+      meta.innerHTML = `
+        <div class="summary-card">
+          <h3>Client Name</h3>
+          <div style="font-size:18px; font-weight:700; color:#111827;">${clientMeta.clientName || '—'}</div>
+        </div>
+        <div class="summary-card">
+          <h3>Department</h3>
+          <div style="font-size:18px; font-weight:700; color:#111827;">${clientMeta.department || '—'}</div>
+        </div>
+        <div class="summary-card">
+          <h3>Target Audience</h3>
+          <div style="font-size:18px; font-weight:700; color:#111827;">${clientMeta.targetAudience || '—'}</div>
+        </div>
+      `;
+    }
+
+    function renderAreaSummary(areaAverages) {
+      const areaSummary = document.getElementById('areaSummary');
+      areaSummary.innerHTML = areaAverages.map(item => `
+        <div class="summary-card">
+          <h3>${item.area}</h3>
+          <div class="score-number" style="color:${getAreaColorClass(item.avg)}">${item.avg.toFixed(2)}</div>
+          <div>${item.label}</div>
+        </div>
+      `).join('');
+    }
+
+    function renderRadarChart(areaAverages) {
+      const labels = ["Self Management", "People Management", "Planning & Executing"];
+      const map = Object.fromEntries(areaAverages.map(a => [a.area, a.avg]));
+      const data = labels.map(label => map[label] || 0);
+      const ctx = document.getElementById('radarChart').getContext('2d');
+
+      if (radarInstance) radarInstance.destroy();
+
+      radarInstance = new Chart(ctx, {
+        type: 'radar',
+        data: {
+          labels,
+          datasets: [{
+            label: 'Average Capability Score',
+            data,
+            fill: true,
+            backgroundColor: 'rgba(29, 78, 216, 0.18)',
+            borderColor: 'rgba(29, 78, 216, 1)',
+            pointBackgroundColor: 'rgba(29, 78, 216, 1)',
+            pointBorderColor: '#fff',
+            pointHoverBackgroundColor: '#fff',
+            pointHoverBorderColor: 'rgba(29, 78, 216, 1)'
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            r: {
+              min: 0,
+              max: 3,
+              ticks: { stepSize: 1 },
+              pointLabels: { font: { size: 13 } }
+            }
+          },
+          plugins: {
+            legend: { display: false }
+          }
+        }
+      });
+    }
+
+    function renderTopCompetencies(items) {
+      const topCompetencies = document.getElementById('topCompetencies');
+      topCompetencies.innerHTML = items.map((item, idx) => `
+        <div class="competency-item">
+          <h4>${idx + 1}. ${item.name} <span style="font-weight:normal; color:#475569;">(${item.area})</span></h4>
+          <p><strong>Score:</strong> ${item.score} — ${item.summary}</p>
+        </div>
+      `).join('');
+    }
+
+    function renderWordCloud(items) {
+      const wordCloud = document.getElementById('wordCloud');
+      const sorted = [...items].sort((a, b) => a.score - b.score || a.name.localeCompare(b.name));
+      wordCloud.innerHTML = sorted.map(item => {
+        const weakness = 4 - item.score; // 3 for weak, 1 for strong
+        const fontSize = 14 + (weakness * 8);
+        const opacity = 0.5 + (weakness * 0.15);
+        const weight = item.score === 1 ? 700 : item.score === 2 ? 600 : 500;
+        return `<span class="word-item" title="${item.area} | Score: ${item.score}" style="font-size:${fontSize}px; opacity:${opacity}; font-weight:${weight};">${item.name}</span>`;
+      }).join('');
+    }
+
+    function renderOverallNote(areaAverages, weakest) {
+      const lowestArea = [...areaAverages].sort((a, b) => a.avg - b.avg)[0];
+      const repeatedAreaCounts = weakest.reduce((acc, item) => {
+        acc[item.area] = (acc[item.area] || 0) + 1;
+        return acc;
+      }, {});
+      const dominantArea = Object.entries(repeatedAreaCounts).sort((a, b) => b[1] - a[1])[0][0];
+      document.getElementById('overallNote').innerHTML = `
+        <strong>Suggested Interpretation:</strong> The most immediate development need appears to sit within <strong>${lowestArea.area}</strong>. The top weak competencies also cluster most strongly around <strong>${dominantArea}</strong>, suggesting that any leadership intervention should prioritise this area first. From there, the programme can be designed to address 3 to 5 of the most critical underlying competencies highlighted in the summary above.
+      `;
+    }
+
+    function printReport() {
+      const page = document.getElementById('resultsPage');
+      if (!page.classList.contains('visible')) {
+        generateResults();
+        if (!page.classList.contains('visible')) return;
+      }
+      window.print();
+    }
+
+    function resetForm() {
+      document.getElementById('clientName').value = '';
+      document.getElementById('department').value = '';
+      document.getElementById('targetAudience').value = '';
+      document.getElementById('otherAudience').value = '';
+      document.getElementById('otherAudienceRow').style.display = 'none';
+      document.querySelectorAll('.score-select').forEach(select => select.value = '');
+      document.getElementById('resultsPage').classList.remove('visible');
+      document.getElementById('clientMetaSummary').innerHTML = '';
+      document.getElementById('areaSummary').innerHTML = '';
+      document.getElementById('topCompetencies').innerHTML = '';
+      document.getElementById('wordCloud').innerHTML = '';
+      document.getElementById('overallNote').innerHTML = '';
+      if (radarInstance) {
+        radarInstance.destroy();
+        radarInstance = null;
+      }
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    document.getElementById('targetAudience').addEventListener('change', function () {
+      const showOther = this.value === 'Others';
+      document.getElementById('otherAudienceRow').style.display = showOther ? '' : 'none';
+      if (!showOther) document.getElementById('otherAudience').value = '';
+    });
+
+    renderForm();
+  </script>
+</body>
+</html>
